@@ -4,7 +4,7 @@ about: "Créez une nouvelle User Story (US) pour HBManager"
 title: "[US]"
 labels: "story"
 assignees: ""
--------------
+---
 
 ## En tant que
 
