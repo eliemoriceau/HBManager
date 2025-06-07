@@ -2,7 +2,7 @@
 
 name: "Bug report"
 about: "Signalez un problème rencontré dans HBManager"
-title: "\[BUG]"
+title: "[BUG]"
 labels: "bug"
 assignees: ""
 
