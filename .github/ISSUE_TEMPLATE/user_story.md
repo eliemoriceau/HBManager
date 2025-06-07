@@ -1,5 +1,4 @@
 ---
-
 name: "User Story"
 about: "Créez une nouvelle User Story (US) pour HBManager"
 title: "\[US]"
