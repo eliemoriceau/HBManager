@@ -2,7 +2,7 @@
 
 name: "Feature request"
 about: "Proposez une nouvelle fonctionnalité pour HBManager"
-title: "\[FEATURE]"
+title: "[FEATURE]"
 labels: "enhancement"
 assignees: ""
 
