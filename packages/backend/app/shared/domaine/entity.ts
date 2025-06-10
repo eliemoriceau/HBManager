@@ -2,7 +2,7 @@ import { Identifier } from '#shared/domaine/identifier'
 
 export abstract class Entity<TProperties extends { id: Identifier }> {
   readonly props: TProperties
-  constructor(props: TProperties) {
+  protected constructor(props: TProperties) {
     this.props = props
   }
 
