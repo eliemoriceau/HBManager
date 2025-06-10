@@ -29,8 +29,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: 'yarn'
-          cache-dependency-path: '**/yarn.lock'
+
+      - name: Install Yarn
+        run: corepack enable && corepack prepare yarn@4.6.0 --activate
 
       - name: Get Yarn cache directory
         id: yarn-cache-dir-path
@@ -41,6 +42,9 @@ jobs:
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            .yarn/cache
+            .yarn/unplugged
+            .yarn/install-state.gz
             **/node_modules
             **/.eslintcache
           key: ${{ runner.os }}-yarn-${{ matrix.package }}-${{ hashFiles('**/yarn.lock') }}
@@ -49,7 +53,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --prefer-offline
+        run: yarn install --immutable
 
       - name: ESLint & Prettier
         run: yarn lint
@@ -71,8 +75,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: 'yarn'
-          cache-dependency-path: '**/yarn.lock'
+
+      - name: Install Yarn
+        run: corepack enable && corepack prepare yarn@4.6.0 --activate
 
       - name: Get Yarn cache directory
         id: yarn-cache-dir-path
@@ -83,6 +88,9 @@ jobs:
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            .yarn/cache
+            .yarn/unplugged
+            .yarn/install-state.gz
             **/node_modules
             **/.eslintcache
           key: ${{ runner.os }}-yarn-${{ matrix.package }}-${{ hashFiles('**/yarn.lock') }}
@@ -91,7 +99,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --prefer-offline
+        run: yarn install --immutable
 
       - name: Run tests
         env:
@@ -115,8 +123,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
-          cache: 'yarn'
-          cache-dependency-path: '**/yarn.lock'
+
+      - name: Install Yarn
+        run: corepack enable && corepack prepare yarn@4.6.0 --activate
 
       - name: Get Yarn cache directory
         id: yarn-cache-dir-path
@@ -127,6 +136,9 @@ jobs:
         with:
           path: |
             ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            .yarn/cache
+            .yarn/unplugged
+            .yarn/install-state.gz
             **/node_modules
             **/.eslintcache
           key: ${{ runner.os }}-yarn-${{ matrix.package }}-${{ hashFiles('**/yarn.lock') }}
@@ -135,7 +147,7 @@ jobs:
             ${{ runner.os }}-yarn-
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --prefer-offline --production
+        run: yarn install --immutable --mode=production
 
       - name: Build
         run: yarn build
