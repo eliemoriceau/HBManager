@@ -1,5 +1,5 @@
 import { ValueObject } from '#shared/domaine/value_object'
-import InvalidPasswordException from '#auth/exceptions/invalidPasswordException'
+import InvalidPasswordException from '#auth/exceptions/invalid_password_exception'
 
 export class PlainPassword extends ValueObject<{ value: string }> {
   private constructor(value: { value: string }) {

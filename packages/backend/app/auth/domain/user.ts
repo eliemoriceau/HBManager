@@ -2,17 +2,17 @@ import { Email } from '#auth/domain/email'
 import { Entity } from '#shared/domaine/entity'
 import { Identifier } from '#shared/domaine/identifier'
 import { Role, setRoles } from '#auth/domain/role'
-import { PlainPassword } from '#auth/domain/plainPassword'
+import { PlainPassword } from '#auth/domain/plain_password'
 
-interface properties {
+interface Properties {
   id: Identifier
   email: Email
   password: PlainPassword
   roles: Role[]
 }
 
-export default class User extends Entity<properties> {
-  private constructor(props: properties) {
+export default class User extends Entity<Properties> {
+  private constructor(props: Properties) {
     super(props)
   }
 

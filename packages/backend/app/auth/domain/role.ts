@@ -1,4 +1,4 @@
-import { InvalidArgumentException } from '#exceptions/invalidArgumentException'
+import { InvalidArgumentException } from '#exceptions/invalid_argument_exception'
 
 export enum Role {
   SECRETAIRE = 'SECRETAIRE',
