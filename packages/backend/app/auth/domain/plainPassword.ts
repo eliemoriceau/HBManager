@@ -1,10 +1,10 @@
 import { ValueObject } from '#shared/domaine/value_object'
-import { InvalidArgumentException } from '#exceptions/invalidArgumentException'
+import InvalidPasswordException from '#auth/exceptions/invalidPasswordException'
 
 export class PlainPassword extends ValueObject<{ value: string }> {
   private constructor(value: { value: string }) {
-    if (value) {
-      throw new InvalidArgumentException('Le mot de passe ne peut pas être vide')
+    if (!value) {
+      throw new InvalidPasswordException('Le mot de passe ne peut pas être vide')
     }
     super(value)
   }

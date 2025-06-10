@@ -14,4 +14,8 @@ export class Email extends ValueObject<{ value: string }> {
   get() {
     return this.props.value
   }
+
+  toString() {
+    return this.props.value
+  }
 }

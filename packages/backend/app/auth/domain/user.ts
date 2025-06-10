@@ -20,8 +20,20 @@ export default class User extends Entity<properties> {
     return new User({
       id: Identifier.generate(),
       email: Email.fromString(email),
-      roles: setRoles(roles),
+      roles: setRoles(roles as Role[]),
       password: PlainPassword.fromString(password),
     })
+  }
+
+  get email(): Email {
+    return this.props.email
+  }
+
+  get password() {
+    return this.props.password
+  }
+
+  get roles() {
+    return this.props.roles
   }
 }

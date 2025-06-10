@@ -17,4 +17,8 @@ export abstract class Entity<TProperties extends { id: Identifier }> {
   private getIdentifier() {
     return this.props.id
   }
+
+  get id() {
+    return this.props.id
+  }
 }

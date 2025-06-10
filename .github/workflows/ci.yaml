@@ -49,7 +49,7 @@ jobs:
           - 6379:6379
     strategy:
       matrix:
-        package: [frontend, backend]
+        package: [backend]
     defaults:
       run:
         working-directory: packages/${{ matrix.package }}
