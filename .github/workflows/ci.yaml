@@ -1,7 +1,8 @@
+
 name: CI Monorepo
 
 on:
-  workflow_dispatch:  # Permet le déclenchement manuel
+  workflow_dispatch:
   push:
     paths:
       - 'packages/**'
@@ -23,32 +24,39 @@ jobs:
         working-directory: packages/${{ matrix.package }}
     steps:
       - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
+
+      - name: Get Yarn cache directory
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+
+      - name: Cache Yarn dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            **/node_modules
+            **/.eslintcache
+          key: ${{ runner.os }}-yarn-${{ matrix.package }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-${{ matrix.package }}-
+            ${{ runner.os }}-yarn-
+
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile --prefer-offline
+
       - name: ESLint & Prettier
-        run: yarn run lint
+        run: yarn lint
 
   test:
     needs: lint
     runs-on: ubuntu-latest
-#    services:
-#      postgres:
-#        image: postgres:13
-#        env:
-#          POSTGRES_USER: user
-#          POSTGRES_PASSWORD: password
-#          POSTGRES_DB: hbmanager_test
-#        ports:
-#          - 5432:5432
-#        options: >-
-#          --health-cmd="pg_isready -U user -d hbmanager_test"
-#          --health-interval=10s
-#          --health-timeout=5s
-#          --health-retries=5
-#      redis:
-#        image: redis:6
-#        ports:
-#          - 6379:6379
     strategy:
       fail-fast: false
       matrix:
@@ -58,17 +66,38 @@ jobs:
         working-directory: packages/${{ matrix.package }}
     steps:
       - uses: actions/checkout@v3
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 16
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
+
+      - name: Get Yarn cache directory
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+
+      - name: Cache Yarn dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            **/node_modules
+            **/.eslintcache
+          key: ${{ runner.os }}-yarn-${{ matrix.package }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-${{ matrix.package }}-
+            ${{ runner.os }}-yarn-
+
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile --prefer-offline
+
       - name: Run tests
         env:
           DATABASE_URL: postgres://user:password@localhost:5432/hbmanager_test
           REDIS_URL: redis://localhost:6379
-        run: npm test
+        run: yarn test
 
   build:
     needs: test
@@ -81,14 +110,36 @@ jobs:
         working-directory: packages/${{ matrix.package }}
     steps:
       - uses: actions/checkout@v3
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 16
+          cache: 'yarn'
+          cache-dependency-path: '**/yarn.lock'
+
+      - name: Get Yarn cache directory
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+
+      - name: Cache Yarn dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ steps.yarn-cache-dir-path.outputs.dir }}
+            **/node_modules
+            **/.eslintcache
+          key: ${{ runner.os }}-yarn-${{ matrix.package }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-${{ matrix.package }}-
+            ${{ runner.os }}-yarn-
+
       - name: Install dependencies
-        run: yarn install --prod
+        run: yarn install --frozen-lockfile --prefer-offline --production
+
       - name: Build
-        run: yarn run build
+        run: yarn build
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
