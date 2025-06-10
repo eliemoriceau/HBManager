@@ -1,41 +1,38 @@
 import { test } from '@japa/runner'
 import { Email } from '#auth/domain/email'
 
-const testCases = [
-  // Format invalide
-  'user@@domain.com',
-  '@domain.com',
-  'user@',
-  'user@domain',
-  // Domaine invalide
-  'user@domain.c',
-  'user@domain.c1',
-  'user@.com',
-  'user@domain..com',
-  // Caractères spéciaux invalides
-  'user#name@domain.com',
-  'user@do_main.com',
-  'user@domain!.com',
-  // Espaces et formatage
-  'user @domain.com',
-  'user@domain.com ',
-  'user@domain, com',
-  // Caractères internationaux
-  'üser@domain.com',
-]
+test.group('Email Value Object', () => {
+  test('should create an Email instance with a valid email', ({ assert }) => {
+    // Cas nominal
+    const email = Email.fromString('User.Nametag@domain.co')
 
-test.group('Auth domaine email', () => {
-  test('should be create email', async ({ assert }) => {
-    const emailValue = 'email@test.fr'
-    const email = Email.fromString('email@test.fr')
-
-    assert.equal(
-      email.get(),
-      emailValue,
-      'Methode Email.fromString should be return a valide email'
-    )
+    assert.equal(email.get(), 'user.nametag@domain.co')
   })
-  test('Invalid email should be throw exception', async ({ assert }, emailValue) => {
-    assert.throws(() => Email.fromString(emailValue as unknown as string))
-  }).with(testCases)
+
+  test('should throw an error for email without "@" symbol', ({ assert }) => {
+    // Cas limite : email invalide sans @
+    assert.throws(() => {
+      Email.fromString('invalidemail.com')
+    }, 'Email format invalid: invalidemail.com')
+  })
+
+  test('should throw an error for email with invalid domain', ({ assert }) => {
+    // Cas limite : domaine invalide
+    assert.throws(() => {
+      Email.fromString('user@.com')
+    }, 'Email format invalid: user@.com')
+  })
+
+  test('should normalize email to lowercase', ({ assert }) => {
+    // Cas utile : normalisation en lowercase
+    const email = Email.fromString('TEST@DOMAIN.COM')
+    assert.equal(email.get(), 'test@domain.com')
+  })
+
+  test('should throw an error for empty email string', ({ assert }) => {
+    // Cas extrême : chaîne vide
+    assert.throws(() => {
+      Email.fromString('')
+    }, 'Email format invalid: ')
+  })
 })

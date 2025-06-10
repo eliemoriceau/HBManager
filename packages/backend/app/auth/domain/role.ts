@@ -10,11 +10,8 @@ export enum Role {
 
 export const allRoles = new Set(Object.values(Role))
 
-export const setRoles = (roles: string[]): Role[] => {
-  const rolesSet = new Set(roles.map((role) => role as Role))
-  if (rolesSet.size !== roles.length) {
-    throw new InvalidArgumentException('Les rôles ne doivent pas contenir de doublons')
-  }
+export const setRoles = (roles: Role[]): Role[] => {
+  const rolesSet = new Set(roles)
   for (const r of rolesSet) {
     if (!allRoles.has(r)) {
       throw new InvalidArgumentException(`Rôle inconnu : ${r}`)
