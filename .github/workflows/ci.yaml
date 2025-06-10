@@ -1,6 +1,57 @@
 name: CI Monorepo
 
 on:
+  workflow_dispatch:  # Permet le déclenchement manuel
+    inputs:
+      package:
+        description: 'Package à tester (backend ou frontend)'
+        required: true
+        type: choice
+        options:
+          - backend
+          - frontend
+        default: 'backend'
+      environment:
+        description: 'Environnement de test'
+        required: true
+        type: choice
+        options:
+          - development
+          - staging
+        default: 'development'
+      debug:
+        description: 'Activer le mode debug'
+        required: false
+        type: boolean
+        default: false
+  push:
+    paths:
+      - 'packages/**'
+      - '.github/workflows/ci.yml'
+  pull_request:
+    paths:
+      - 'packages/**'
+      - '.github/workflows/ci.yml'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: ${{ github.event_name == 'workflow_dispatch' && [github.event.inputs.package] || ['frontend', 'backend'] }}
+    defaults:
+      run:
+        working-directory: packages/${{ matrix.package }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install dependencies
+        run: npm ci
+      - name: ESLint & Prettier
+        run: npm run lint
+        env:
+          DEBUG: ${{ github.event.inputs.debug == 'true' }}
+
+# ... le reste de votre configuration reste identique
   push:
     paths:
       - 'packages/**'
