@@ -2,28 +2,6 @@ name: CI Monorepo
 
 on:
   workflow_dispatch:  # Permet le déclenchement manuel
-    inputs:
-      package:
-        description: 'Package à tester (backend ou frontend)'
-        required: true
-        type: choice
-        options:
-          - backend
-          - frontend
-        default: 'backend'
-      environment:
-        description: 'Environnement de test'
-        required: true
-        type: choice
-        options:
-          - development
-          - staging
-        default: 'development'
-      debug:
-        description: 'Activer le mode debug'
-        required: false
-        type: boolean
-        default: false
   push:
     paths:
       - 'packages/**'
@@ -74,7 +52,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: ${{ github.event_name == 'workflow_dispatch' && [github.event.inputs.package] || [backend] }}
+        package: [backend]
     defaults:
       run:
         working-directory: packages/${{ matrix.package }}
