@@ -37,37 +37,9 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        package: ${{ github.event_name == 'workflow_dispatch' && [github.event.inputs.package] || ['frontend', 'backend'] }}
-    defaults:
-      run:
-        working-directory: packages/${{ matrix.package }}
-    steps:
-      - uses: actions/checkout@v3
-      - name: Install dependencies
-        run: npm ci
-      - name: ESLint & Prettier
-        run: npm run lint
-        env:
-          DEBUG: ${{ github.event.inputs.debug == 'true' }}
-
-# ... le reste de votre configuration reste identique
-  push:
-    paths:
-      - 'packages/**'
-      - '.github/workflows/ci.yml'
-  pull_request:
-    paths:
-      - 'packages/**'
-      - '.github/workflows/ci.yml'
-
-jobs:
-  lint:
-    runs-on: ubuntu-latest
-    strategy:
       fail-fast: false
       matrix:
-        package: [backend]
+        package: ${{ github.event_name == 'workflow_dispatch' && [github.event.inputs.package] || ['frontend', 'backend'] }}
     defaults:
       run:
         working-directory: packages/${{ matrix.package }}
@@ -102,7 +74,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        package: [backend]
+        package: ${{ github.event_name == 'workflow_dispatch' && [github.event.inputs.package] || ['frontend', 'backend'] }}
     defaults:
       run:
         working-directory: packages/${{ matrix.package }}
