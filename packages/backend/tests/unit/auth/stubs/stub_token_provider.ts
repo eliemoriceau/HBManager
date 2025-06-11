@@ -1,5 +1,5 @@
-import TokenProvider, { TokenPayload } from '#auth/port/token_provider'
 import { TokenInvalidError } from '#auth/exceptions/token_invalid_error'
+import TokenProvider, { TokenPayload } from '#auth/secondary/ports/token_provider'
 
 /**
  * Stub pour les tests unitaires.

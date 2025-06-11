@@ -37,12 +37,17 @@ test.group('LoginUserService', (group) => {
 
     // Assert
     assert.equal(result.token, 'test-jwt-token')
-    assert.equal(result.roles, [Role.ADMIN])
+    assert.deepEqual(result.roles, [Role.ADMIN])
   })
 
   test('devrait lever InvalidCredentialsException pour un email inconnu', async ({ assert }) => {
+    // Arrange
+    const testUser = User.create('test@example.com', 'password123', [Role.ADMIN])
+    userRepository = new StubUserRepository([testUser])
+    loginService = new LoginUserService(userRepository, tokenProvider)
+
     // Act & Assert
-    assert.throws(async () => await loginService.execute('unknown@example.com', 'password123'))
+    assert.rejects(async () => await loginService.execute('unknown@example.com', 'password123'))
   })
 
   test('devrait lever InvalidCredentialsException pour un mot de passe incorrect', async ({
@@ -54,7 +59,7 @@ test.group('LoginUserService', (group) => {
     loginService = new LoginUserService(userRepository, tokenProvider)
 
     // Act & Assert
-    assert.throws(async () => await loginService.execute('test@example.com', 'wrongPassword'))
+    assert.rejects(async () => await loginService.execute('test@example.com', 'wrongPassword'))
   })
 
   test('devrait générer un token avec les informations correctes', async ({ assert }) => {
