@@ -80,7 +80,7 @@ jobs:
           DB_DATABASE: hbmanager_test
           DATABASE_URL: postgres://user:password@localhost:5432/hbmanager_test
           REDIS_URL: redis://localhost:6379
-        run: yarn test
+        run: yarn test --reporter github
 
   build:
     needs: test
