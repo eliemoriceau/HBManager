@@ -13,4 +13,8 @@ export class Identifier extends ValueObject<{ value: string }> {
   static fromString(value: string): Identifier {
     return new Identifier({ value })
   }
+
+  toString(): string {
+    return this.props.value
+  }
 }

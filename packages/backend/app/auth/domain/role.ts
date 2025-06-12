@@ -6,6 +6,7 @@ export enum Role {
   ARBITRE = 'ARBITRE',
   COMMUNICATION = 'COMMUNICATION',
   ADMIN = 'ADMIN',
+  GUEST = 'GUEST',
 }
 
 export const allRoles = new Set(Object.values(Role))
