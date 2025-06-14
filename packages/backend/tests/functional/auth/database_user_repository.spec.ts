@@ -4,7 +4,6 @@ import { DatabaseUserRepository } from '#auth/secondary/adapters/database_user_r
 import User from '#auth/domain/user'
 import { Role } from '#auth/domain/role'
 
-
 test.group('DatabaseUserRepository', (group) => {
   group.setup(async () => {
     await db.connection().schema.createTable('users', (table) => {
