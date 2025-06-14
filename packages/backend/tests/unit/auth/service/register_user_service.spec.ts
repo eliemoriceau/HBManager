@@ -38,7 +38,11 @@ test.group('RegisterUserService', (group) => {
 
   test('devrait lever EmailAlreadyExistsException si email existe déjà', async ({ assert }) => {
     // Arrange
-    const existingUser = User.create('test@example.com', 'password123', [Role.GUEST])
+    const existingUser = User.create({
+      email: 'test@example.com',
+      password: 'password123',
+      roles: [Role.GUEST],
+    })
     userRepository = new StubUserRepository([existingUser])
     registerService = new RegisterUserService(userRepository, passwordHasher)
 

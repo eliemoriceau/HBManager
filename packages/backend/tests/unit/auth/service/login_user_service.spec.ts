@@ -28,7 +28,11 @@ test.group('LoginUserService', (group) => {
     assert,
   }) => {
     // Arrange
-    const testUser = User.create('test@example.com', 'password123', [Role.ADMIN])
+    const testUser = User.create({
+      email: 'test@example.com',
+      password: 'password123',
+      roles: [Role.ADMIN],
+    })
     userRepository = new StubUserRepository([testUser])
     loginService = new LoginUserService(userRepository, tokenProvider)
 
@@ -42,7 +46,11 @@ test.group('LoginUserService', (group) => {
 
   test('devrait lever InvalidCredentialsException pour un email inconnu', async ({ assert }) => {
     // Arrange
-    const testUser = User.create('test@example.com', 'password123', [Role.ADMIN])
+    const testUser = User.create({
+      email: 'test@example.com',
+      password: 'password123',
+      roles: [Role.ADMIN],
+    })
     userRepository = new StubUserRepository([testUser])
     loginService = new LoginUserService(userRepository, tokenProvider)
 
@@ -54,7 +62,11 @@ test.group('LoginUserService', (group) => {
     assert,
   }) => {
     // Arrange
-    const testUser = User.create('test@example.com', 'correctPassword', [Role.ADMIN])
+    const testUser = User.create({
+      email: 'test@example.com',
+      password: 'correctPassword',
+      roles: [Role.ADMIN],
+    })
     userRepository = new StubUserRepository([testUser])
     loginService = new LoginUserService(userRepository, tokenProvider)
 
@@ -64,7 +76,11 @@ test.group('LoginUserService', (group) => {
 
   test('devrait générer un token avec les informations correctes', async ({ assert }) => {
     // Arrange
-    const testUser = User.create('test@example.com', 'password123', [Role.ADMIN])
+    const testUser = User.create({
+      email: 'test@example.com',
+      password: 'password123',
+      roles: [Role.ADMIN],
+    })
     userRepository = new StubUserRepository([testUser])
 
     const expectedPayload: TokenPayload = {

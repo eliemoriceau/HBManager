@@ -17,7 +17,7 @@ export class RegisterUserService implements RegisterUserUseCase {
     }
 
     const hashedPassword = await this.passwordHasher.hash(plainPassword)
-    const user = User.create(email, hashedPassword, [Role.GUEST])
+    const user = User.create({ email: email, password: hashedPassword, roles: [Role.GUEST] })
 
     await this.userRepository.save(user)
     return user

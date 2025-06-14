@@ -16,9 +16,19 @@ export default class User extends Entity<Properties> {
     super(props)
   }
 
-  static create(email: string, password: string, roles: string[]): User {
+  static create({
+    id,
+    email,
+    password,
+    roles,
+  }: {
+    id?: string
+    email: string
+    password: string
+    roles: string[]
+  }): User {
     return new User({
-      id: Identifier.generate(),
+      id: id !== undefined ? Identifier.fromString(id) : Identifier.generate(),
       email: Email.fromString(email),
       roles: setRoles(roles as Role[]),
       password: PlainPassword.fromString(password),

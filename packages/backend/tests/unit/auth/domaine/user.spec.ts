@@ -8,7 +8,7 @@ test.group('User.create', () => {
     const password = 'SecureP@ssw0rd'
     const roles = [Role.ADMIN]
 
-    const user = User.create(email, password, roles)
+    const user = User.create({ email: email, password: password, roles: roles })
 
     assert.equal(user.email.toString(), email)
     assert.equal(user.password.toString(), password)
@@ -25,7 +25,7 @@ test.group('User.create', () => {
     const roles = ['user']
 
     assert.throws(() => {
-      User.create(invalidEmail, password, roles)
+      User.create({ email: invalidEmail, password: password, roles: roles })
     })
   })
 
@@ -34,7 +34,7 @@ test.group('User.create', () => {
     const password = 'SecureP@ssw0rd'
     const roles: string[] = []
 
-    const user = User.create(email, password, roles)
+    const user = User.create({ email: email, password: password, roles: roles })
 
     assert.exists(user)
     assert.deepEqual(user.roles, [])
