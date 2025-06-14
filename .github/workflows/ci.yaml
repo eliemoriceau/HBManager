@@ -69,6 +69,7 @@ jobs:
         run: echo "APP_KEY=$(openssl rand -base64 32)" >> $GITHUB_ENV
       - name: Generate db for test
         run: |
+          mkdir -p tmp
           touch /tmp/db.sqlite3
 #          yarn node ace migration:run
 
