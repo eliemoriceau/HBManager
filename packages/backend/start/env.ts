@@ -20,6 +20,14 @@ export default await Env.create(new URL('../', import.meta.url), {
 
   /*
   |----------------------------------------------------------
+  | Variables for configuring JWT tokens
+  |----------------------------------------------------------
+  */
+  JWT_SECRET: Env.schema.string(),
+  JWT_EXPIRES_IN: Env.schema.string(),
+
+  /*
+  |----------------------------------------------------------
   | Variables for configuring database connection
   |----------------------------------------------------------
   */
