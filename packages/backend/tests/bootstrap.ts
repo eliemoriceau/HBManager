@@ -5,6 +5,9 @@ import type { Config } from '@japa/runner/types'
 import { pluginAdonisJS } from '@japa/plugin-adonisjs'
 import testUtils from '@adonisjs/core/services/test_utils'
 
+process.env.JWT_SECRET = 'testsecret'
+process.env.JWT_EXPIRES_IN = '1h'
+
 /**
  * This file is imported by the "bin/test.ts" entrypoint file
  */
