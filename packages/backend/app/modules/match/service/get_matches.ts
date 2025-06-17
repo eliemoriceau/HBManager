@@ -6,6 +6,9 @@ export class GetMatches implements GetMatchesUseCase {
   constructor(private readonly matchRepository: MatchRepository) {}
 
   async execute(filters: GetMatchesFilter = {}): Promise<Match[]> {
-    return this.matchRepository.search(filters)
+    if (Object.keys(filters).length === 0) {
+      return this.matchRepository.findAll()
+    }
+    return this.matchRepository.findByCriteria(filters)
   }
 }
