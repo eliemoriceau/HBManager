@@ -10,6 +10,7 @@
 import router from '@adonisjs/core/services/router'
 import { Role } from '#auth/domain/role'
 import { middleware } from '#start/kernel'
+
 import { DatabaseUserRepository } from '#auth/secondary/adapters/database_user_repository'
 import { JwtTokenProvider } from '#auth/secondary/adapters/jwt_token_provider'
 import { HashPasswordHasher } from '#auth/secondary/adapters/hash_password_hasher'
@@ -63,3 +64,4 @@ router
     return { ok: true }
   })
   .use(middleware.auth(Role.ADMIN))
+
