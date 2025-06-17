@@ -70,10 +70,16 @@ Le projet HBManager vise à faciliter la gestion et l’organisation des matchs 
 * Générer des modules selon l’architecture hexagonale (domaines, use cases, ports, adaptateurs, infrastructure).
 * Privilégier la création de Value Objects pour les attributs des entités métier.
 * Respecter strictement les contraintes métier et invariants définis dans le cahier des charges.
+* doit formater le code 
+* Doit respecter le formatage et le lintage du projet
 
 ### Validation et tests
 
 * Chaque fonctionnalité doit être accompagnée de tests unitaires et d'intégration (cible de couverture ≥ 80 %).
+* Commande pour les test: yarn test
+* Commande pour les test: yarn test
+* Commande pour les test: yarn test
+* Commande pour le formatage: yarn format
 * Documenter clairement chaque endpoint (Swagger/OpenAPI).
 
 ### Documentation et commentaires
