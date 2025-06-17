@@ -4,6 +4,7 @@ import app from '@adonisjs/core/services/app'
 import type { Config } from '@japa/runner/types'
 import { pluginAdonisJS } from '@japa/plugin-adonisjs'
 import testUtils from '@adonisjs/core/services/test_utils'
+import fs from 'node:fs'
 
 process.env.JWT_SECRET = 'testsecret'
 process.env.JWT_EXPIRES_IN = '1h'
@@ -26,7 +27,7 @@ export const plugins: Config['plugins'] = [assert(), apiClient(), pluginAdonisJS
  * The teardown functions are executed after all the tests
  */
 export const runnerHooks: Required<Pick<Config, 'setup' | 'teardown'>> = {
-  setup: [],
+  setup: [() => fs.mkdirSync(app.tmpPath(), { recursive: true })],
   teardown: [],
 }
 

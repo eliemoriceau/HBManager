@@ -8,8 +8,8 @@
     "start": "node bin/server.js",
     "build": "node ace build",
     "dev": "node ace serve --hmr",
-    "test": "APP_KEY=abcdefghijklmnopabcdefghijklmnop node ace test --reporters=spec",
-    "coverage": "APP_KEY=abcdefghijklmnopabcdefghijklmnop c8 --all -n app --reporters=lcov node ace test",
+    "test": "APP_KEY=abcdefghijklmnopabcdefghijklmnop JWT_SECRET=secret JWT_EXPIRES_IN=1h node ace test --reporters=spec",
+    "coverage": "APP_KEY=abcdefghijklmnopabcdefghijklmnop JWT_SECRET=secret JWT_EXPIRES_IN=1h c8 --all -n app --reporters=lcov node ace test",
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "tsc --noEmit"
