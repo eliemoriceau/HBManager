@@ -5,7 +5,7 @@ import { StubMatchRepository } from '#tests/unit/match/stubs/stub_match_reposito
 
 const equipeHome = '11111111-1111-1111-1111-111111111111'
 const equipeAway = '22222222-2222-2222-2222-222222222222'
-const official = '33333333-3333-3333-3333-333333333333'
+const official = '33333333-3333-4333-8333-333333333333'
 
 function createMatch(date: string, heure = '12:00', officials: string[] = [official]) {
   return Match.create({

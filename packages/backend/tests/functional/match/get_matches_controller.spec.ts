@@ -1,9 +1,8 @@
 import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
-import { LucidMatchRepository } from '#match/secondary/adapters/lucid_match_repository'
-import { MatchModel } from '#match/secondary/infrastructure/models/match'
-import Match from '#match/domain/match'
 import { DateTime } from 'luxon'
+import Match from '#match/domain/match'
+import { MatchModel } from '#match/secondary/infrastructure/models/match'
 
 const equipeHome = '11111111-1111-1111-1111-111111111111'
 const equipeAway = '22222222-2222-2222-2222-222222222222'
@@ -19,7 +18,7 @@ function createMatch(date: string, heure = '12:00', officials: string[] = [offic
   })
 }
 
-test.group('LucidMatchRepository', (group) => {
+test.group('GetMatchesController', (group) => {
   group.setup(async () => {
     await db.connection().schema.createTable('matches', (table) => {
       table.uuid('id').primary()
@@ -45,7 +44,7 @@ test.group('LucidMatchRepository', (group) => {
     await db.manager.closeAll()
   })
 
-  test('findAll returns all matches', async ({ assert }) => {
+  test('returns all matches', async ({ client, assert }) => {
     const match1 = createMatch('2025-01-01')
     const match2 = createMatch('2025-01-02')
     await MatchModel.create({
@@ -67,38 +66,12 @@ test.group('LucidMatchRepository', (group) => {
       statut: match2.statut,
     })
 
-    const repo = new LucidMatchRepository()
-    const res = await repo.findAll()
-
-    assert.lengthOf(res, 2)
+    const response = await client.get('/api/matches').send()
+    response.assertStatus(200)
+    assert.lengthOf(response.body(), 2)
   })
 
-  test('findByCriteria filters by date range', async ({ assert }) => {
-    const match1 = createMatch('2025-01-01')
-    const match2 = createMatch('2025-01-02')
-    const match3 = createMatch('2025-01-03')
-    for (const m of [match1, match2, match3]) {
-      await MatchModel.create({
-        id: m.id.toString(),
-        date: DateTime.fromJSDate(m.date),
-        heure: m.heure,
-        equipeDomicileId: m.equipeDomicileId.toString(),
-        equipeExterieurId: m.equipeExterieurId.toString(),
-        officiels: m.officiels.map((o) => o.toString()),
-        statut: m.statut,
-      })
-    }
-
-    const repo = new LucidMatchRepository()
-    const res = await repo.findByCriteria({
-      startDate: new Date('2025-01-01'),
-      endDate: new Date('2025-01-02'),
-    })
-
-    assert.lengthOf(res, 2)
-  })
-
-  test('findByCriteria filters by official', async ({ assert }) => {
+  test('filters by official', async ({ client, assert }) => {
     const match1 = createMatch('2025-01-01')
     const match2 = createMatch('2025-01-02', '14:00', ['44444444-4444-4444-4444-444444444444'])
     for (const m of [match1, match2]) {
@@ -113,10 +86,9 @@ test.group('LucidMatchRepository', (group) => {
       })
     }
 
-    const repo = new LucidMatchRepository()
-    const res = await repo.findByCriteria({ officielId: official })
-
-    assert.lengthOf(res, 1)
-    assert.equal(res[0].id.toString(), match1.id.toString())
+    const response = await client.get('/api/matches').qs({ officielId: official }).send()
+    response.assertStatus(200)
+    assert.lengthOf(response.body(), 1)
+    assert.equal(response.body()[0].id, match1.id.toString())
   })
 })
