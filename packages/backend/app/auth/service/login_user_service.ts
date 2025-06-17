@@ -1,12 +1,14 @@
 import { AuthenticationResult, LoginUserUseCase } from '#auth/use_case/login_user_use_case'
 import { UserRepository } from '#auth/secondary/ports/user_repository'
 import TokenProvider, { TokenPayload } from '#auth/secondary/ports/token_provider'
+import { PasswordHasher } from '#auth/secondary/ports/password_hashing_interface'
 import { InvalidCredentialsException } from '#auth/exceptions/invalid_credentials_exception'
 
 export class LoginUserService implements LoginUserUseCase {
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly tokenProvider: TokenProvider
+    private readonly tokenProvider: TokenProvider,
+    private readonly passwordHasher: PasswordHasher
   ) {}
 
   async execute(email: string, plainPassword: string): Promise<AuthenticationResult> {
@@ -16,7 +18,11 @@ export class LoginUserService implements LoginUserUseCase {
       throw new InvalidCredentialsException()
     }
 
-    if (user.password.toString() !== plainPassword) {
+    const isValid = await this.passwordHasher.verify(
+      plainPassword,
+      user.password.toString()
+    )
+    if (!isValid) {
       throw new InvalidCredentialsException()
     }
 
