@@ -64,4 +64,3 @@ router
     return { ok: true }
   })
   .use(middleware.auth(Role.ADMIN))
-
