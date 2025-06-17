@@ -1,5 +1,6 @@
 import { Entity } from '#shared/domaine/entity'
 import { Identifier } from '#shared/domaine/identifier'
+import InvalidMatchException from '#match/exceptions/invalid_match_exception'
 
 interface Properties {
   id: Identifier
@@ -33,6 +34,22 @@ export default class Match extends Entity<Properties> {
     officiels?: string[]
     statut?: string
   }): Match {
+    if (!date || Number.isNaN(date.getTime())) {
+      throw new InvalidMatchException('Date du match invalide')
+    }
+
+    if (!heure || !/^([01]?\d|2[0-3]):[0-5]\d$/.test(heure)) {
+      throw new InvalidMatchException('Heure du match invalide')
+    }
+
+    if (!equipeDomicileId || !equipeExterieurId) {
+      throw new InvalidMatchException("Les identifiants d'\u00e9quipe sont requis")
+    }
+
+    if (equipeDomicileId === equipeExterieurId) {
+      throw new InvalidMatchException('Les équipes doivent être différentes')
+    }
+
     return new Match({
       id: id ? Identifier.fromString(id) : Identifier.generate(),
       date,
