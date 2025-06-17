@@ -85,7 +85,7 @@ test.group('Match.create', () => {
     }, 'Date du match invalide')
   })
 
-  test('devrait échouer si l\'heure est invalide', ({ assert }) => {
+  test("devrait échouer si l'heure est invalide", ({ assert }) => {
     const date = new Date('2025-01-01')
     const heure = '25:61'
 

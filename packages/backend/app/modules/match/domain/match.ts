@@ -34,12 +34,12 @@ export default class Match extends Entity<Properties> {
     officiels?: string[]
     statut?: string
   }): Match {
-    if (!date || !(date instanceof Date) || isNaN(date.getTime())) {
+    if (!date || Number.isNaN(date.getTime())) {
       throw new InvalidMatchException('Date du match invalide')
     }
 
     if (!heure || !/^([01]?\d|2[0-3]):[0-5]\d$/.test(heure)) {
-      throw new InvalidMatchException("Heure du match invalide")
+      throw new InvalidMatchException('Heure du match invalide')
     }
 
     if (!equipeDomicileId || !equipeExterieurId) {
