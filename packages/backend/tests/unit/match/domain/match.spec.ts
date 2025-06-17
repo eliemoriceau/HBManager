@@ -28,4 +28,74 @@ test.group('Match.create', () => {
     )
     assert.equal(match.statut, 'À venir')
   })
+
+  test('devrait échouer si les équipes sont identiques', ({ assert }) => {
+    const date = new Date('2025-01-01')
+    const heure = '12:30'
+
+    assert.throws(() => {
+      Match.create({
+        date,
+        heure,
+        equipeDomicileId: equipeHome,
+        equipeExterieurId: equipeHome,
+      })
+    }, 'Les équipes doivent être différentes')
+  })
+
+  test("devrait échouer si l'identifiant d'équipe domicile est manquant", ({ assert }) => {
+    const date = new Date('2025-01-01')
+    const heure = '12:30'
+
+    assert.throws(() => {
+      Match.create({
+        date,
+        heure,
+        equipeDomicileId: '' as any,
+        equipeExterieurId: equipeAway,
+      })
+    }, "Les identifiants d'équipe sont requis")
+  })
+
+  test("devrait échouer si l'identifiant d'équipe extérieur est manquant", ({ assert }) => {
+    const date = new Date('2025-01-01')
+    const heure = '12:30'
+
+    assert.throws(() => {
+      Match.create({
+        date,
+        heure,
+        equipeDomicileId: equipeHome,
+        equipeExterieurId: '' as any,
+      })
+    }, "Les identifiants d'équipe sont requis")
+  })
+
+  test('devrait échouer si la date est invalide', ({ assert }) => {
+    const date = new Date('invalid-date')
+    const heure = '12:30'
+
+    assert.throws(() => {
+      Match.create({
+        date,
+        heure,
+        equipeDomicileId: equipeHome,
+        equipeExterieurId: equipeAway,
+      })
+    }, 'Date du match invalide')
+  })
+
+  test('devrait échouer si l\'heure est invalide', ({ assert }) => {
+    const date = new Date('2025-01-01')
+    const heure = '25:61'
+
+    assert.throws(() => {
+      Match.create({
+        date,
+        heure,
+        equipeDomicileId: equipeHome,
+        equipeExterieurId: equipeAway,
+      })
+    }, 'Heure du match invalide')
+  })
 })
