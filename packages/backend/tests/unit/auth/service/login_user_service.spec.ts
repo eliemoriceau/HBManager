@@ -2,6 +2,7 @@ import { test } from '@japa/runner'
 import { StubUserRepository } from '#tests/unit/auth/stubs/stub_user_repository'
 import { StubTokenProvider } from '#tests/unit/auth/stubs/stub_token_provider'
 import { LoginUserService } from '#auth/service/login_user_service'
+import { StubPasswordHasher } from '#tests/unit/auth/stubs/stub_password_hasher'
 import { TokenPayload } from '#auth/secondary/ports/token_provider'
 import { Role } from '#auth/domain/role'
 import User from '#auth/domain/user'
@@ -9,6 +10,7 @@ import User from '#auth/domain/user'
 test.group('LoginUserService', (group) => {
   let userRepository: StubUserRepository
   let tokenProvider: StubTokenProvider
+  let passwordHasher: StubPasswordHasher
   let loginService: LoginUserService
 
   group.each.setup(() => {
@@ -21,7 +23,8 @@ test.group('LoginUserService', (group) => {
 
     userRepository = new StubUserRepository([])
     tokenProvider = new StubTokenProvider(stubPayload, stubToken)
-    loginService = new LoginUserService(userRepository, tokenProvider)
+    passwordHasher = new StubPasswordHasher()
+    loginService = new LoginUserService(userRepository, tokenProvider, passwordHasher)
   })
 
   test('devrait retourner un token et les rôles pour des identifiants valides', async ({
@@ -30,11 +33,11 @@ test.group('LoginUserService', (group) => {
     // Arrange
     const testUser = User.create({
       email: 'test@example.com',
-      password: 'password123',
+      password: await passwordHasher.hash('password123'),
       roles: [Role.ADMIN],
     })
     userRepository = new StubUserRepository([testUser])
-    loginService = new LoginUserService(userRepository, tokenProvider)
+    loginService = new LoginUserService(userRepository, tokenProvider, passwordHasher)
 
     // Act
     const result = await loginService.execute('test@example.com', 'password123')
@@ -48,11 +51,11 @@ test.group('LoginUserService', (group) => {
     // Arrange
     const testUser = User.create({
       email: 'test@example.com',
-      password: 'password123',
+      password: await passwordHasher.hash('password123'),
       roles: [Role.ADMIN],
     })
     userRepository = new StubUserRepository([testUser])
-    loginService = new LoginUserService(userRepository, tokenProvider)
+    loginService = new LoginUserService(userRepository, tokenProvider, passwordHasher)
 
     // Act & Assert
     assert.rejects(async () => await loginService.execute('unknown@example.com', 'password123'))
@@ -64,11 +67,11 @@ test.group('LoginUserService', (group) => {
     // Arrange
     const testUser = User.create({
       email: 'test@example.com',
-      password: 'correctPassword',
+      password: await passwordHasher.hash('correctPassword'),
       roles: [Role.ADMIN],
     })
     userRepository = new StubUserRepository([testUser])
-    loginService = new LoginUserService(userRepository, tokenProvider)
+    loginService = new LoginUserService(userRepository, tokenProvider, passwordHasher)
 
     // Act & Assert
     assert.rejects(async () => await loginService.execute('test@example.com', 'wrongPassword'))
@@ -78,7 +81,7 @@ test.group('LoginUserService', (group) => {
     // Arrange
     const testUser = User.create({
       email: 'test@example.com',
-      password: 'password123',
+      password: await passwordHasher.hash('password123'),
       roles: [Role.ADMIN],
     })
     userRepository = new StubUserRepository([testUser])
@@ -88,7 +91,7 @@ test.group('LoginUserService', (group) => {
       roles: [Role.ADMIN],
     }
     tokenProvider = new StubTokenProvider(expectedPayload, 'custom-token')
-    loginService = new LoginUserService(userRepository, tokenProvider)
+    loginService = new LoginUserService(userRepository, tokenProvider, passwordHasher)
 
     // Act
     const result = await loginService.execute('test@example.com', 'password123')
