@@ -1,0 +1,19 @@
+meta:
+  name: Login
+  type: http
+  version: 1
+request:
+  url: "{{baseUrl}}/api/auth/login"
+  method: POST
+  headers:
+    - key: Content-Type
+      value: application/json
+  body:
+    type: json
+    json: |
+      {
+        "email": "user@example.com",
+        "password": "password"
+      }
+auth:
+  type: none
