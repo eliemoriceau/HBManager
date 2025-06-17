@@ -4,7 +4,11 @@ import { MatchRepository, MatchSearchCriteria } from '#match/secondary/ports/mat
 export class StubMatchRepository implements MatchRepository {
   constructor(private matches: Match[] = []) {}
 
-  async search(criteria: MatchSearchCriteria): Promise<Match[]> {
+  async findAll(): Promise<Match[]> {
+    return [...this.matches]
+  }
+
+  async findByCriteria(criteria: MatchSearchCriteria): Promise<Match[]> {
     return this.matches.filter((m) => {
       if (criteria.startDate && m.date.getTime() < criteria.startDate.getTime()) {
         return false
