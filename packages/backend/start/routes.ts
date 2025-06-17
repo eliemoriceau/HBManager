@@ -16,12 +16,18 @@ import { JwtTokenProvider } from '#auth/secondary/adapters/jwt_token_provider'
 import { HashPasswordHasher } from '#auth/secondary/adapters/hash_password_hasher'
 import { RegisterUserService } from '#auth/service/register_user_service_implementation'
 import { LoginUserService } from '#auth/service/login_user_service'
+import { LucidMatchRepository } from '#match/secondary/adapters/lucid_match_repository'
+import { GetMatches } from '#match/service/get_matches'
+import GetMatchesController from '#match/http/get_matches_controller'
 
 const userRepository = new DatabaseUserRepository()
 const tokenProvider = new JwtTokenProvider()
 const passwordHasher = new HashPasswordHasher()
 const registerService = new RegisterUserService(userRepository, passwordHasher)
 const loginService = new LoginUserService(userRepository, tokenProvider, passwordHasher)
+const matchRepository = new LucidMatchRepository()
+const getMatchesUseCase = new GetMatches(matchRepository)
+const getMatchesController = new GetMatchesController(getMatchesUseCase)
 
 router.post('/api/auth/register', async ({ request, response }) => {
   const { email, password } = request.only(['email', 'password'])
@@ -64,3 +70,5 @@ router
     return { ok: true }
   })
   .use(middleware.auth(Role.ADMIN))
+
+router.get('/api/matches', (ctx) => getMatchesController.handle(ctx))
