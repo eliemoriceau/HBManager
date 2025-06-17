@@ -1,0 +1,12 @@
+meta:
+  name: Admin
+  type: http
+  version: 1
+request:
+  url: "{{baseUrl}}/admin"
+  method: GET
+  headers:
+    - key: Authorization
+      value: Bearer <token>
+auth:
+  type: none

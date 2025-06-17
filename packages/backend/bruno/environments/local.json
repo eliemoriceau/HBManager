@@ -1,0 +1,9 @@
+{
+  "meta": {
+    "name": "Local",
+    "default": true
+  },
+  "data": {
+    "baseUrl": "http://localhost:3333"
+  }
+}
