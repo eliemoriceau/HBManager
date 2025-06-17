@@ -1,6 +1,7 @@
 import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
 import { Role } from '#auth/domain/role'
+import hash from '@adonisjs/core/services/hash'
 
 process.env.JWT_SECRET = 'testsecret'
 process.env.JWT_EXPIRES_IN = '1h'
@@ -13,13 +14,15 @@ const createUsersTable = async () => {
     table.string('password').notNullable()
     table.text('roles').notNullable()
   })
-  const hash = (await import('@adonisjs/core/services/hash')).default
-  await db.connection().table('users').insert({
-    id: '1',
-    email: 'admin@example.com',
-    password: await hash.make('secret'),
-    roles: JSON.stringify([Role.ADMIN]),
-  })
+  await db
+    .connection()
+    .table('users')
+    .insert({
+      id: '1',
+      email: 'admin@example.com',
+      password: await hash.make('secret'),
+      roles: JSON.stringify([Role.ADMIN]),
+    })
 }
 
 const dropUsersTable = async () => {

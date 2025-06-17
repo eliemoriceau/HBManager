@@ -18,10 +18,7 @@ export class LoginUserService implements LoginUserUseCase {
       throw new InvalidCredentialsException()
     }
 
-    const isValid = await this.passwordHasher.verify(
-      plainPassword,
-      user.password.toString()
-    )
+    const isValid = await this.passwordHasher.verify(plainPassword, user.password.toString())
     if (!isValid) {
       throw new InvalidCredentialsException()
     }
