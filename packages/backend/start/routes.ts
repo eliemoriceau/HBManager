@@ -17,6 +17,8 @@ router.get('/', async () => {
   }
 })
 
-router.get('/admin', async () => {
-  return { ok: true }
-}).use(middleware.auth(Role.ADMIN))
+router
+  .get('/admin', async () => {
+    return { ok: true }
+  })
+  .use(middleware.auth(Role.ADMIN))
