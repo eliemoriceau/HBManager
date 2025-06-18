@@ -1,4 +1,4 @@
-export interface PasswordHasher {
-  hash(plainPassword: string): Promise<string>
-  verify(plainPassword: string, hashedPassword: string): Promise<boolean>
+export abstract class PasswordHasher {
+  abstract hash(plainPassword: string): Promise<string>
+  abstract verify(plainPassword: string, hashedPassword: string): Promise<boolean>
 }

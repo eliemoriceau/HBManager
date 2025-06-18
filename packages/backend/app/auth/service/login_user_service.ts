@@ -3,13 +3,17 @@ import { UserRepository } from '#auth/secondary/ports/user_repository'
 import TokenProvider, { TokenPayload } from '#auth/secondary/ports/token_provider'
 import { PasswordHasher } from '#auth/secondary/ports/password_hashing_interface'
 import { InvalidCredentialsException } from '#auth/exceptions/invalid_credentials_exception'
+import { inject } from '@adonisjs/core'
 
-export class LoginUserService implements LoginUserUseCase {
+@inject()
+export class LoginUserUseCaseImpl extends LoginUserUseCase {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly tokenProvider: TokenProvider,
     private readonly passwordHasher: PasswordHasher
-  ) {}
+  ) {
+    super()
+  }
 
   async execute(email: string, plainPassword: string): Promise<AuthenticationResult> {
     const user = await this.userRepository.findByEmail(email)

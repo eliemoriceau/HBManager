@@ -1,10 +1,11 @@
-meta:
+meta {
   name: Root
   type: http
-  version: 1
-request:
-  url: "{{baseUrl}}/"
-  method: GET
-  headers: []
-auth:
-  type: none
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/
+  body: none
+  auth: inherit
+}

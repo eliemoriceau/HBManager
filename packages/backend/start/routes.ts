@@ -11,53 +11,13 @@ import router from '@adonisjs/core/services/router'
 import { Role } from '#auth/domain/role'
 import { middleware } from '#start/kernel'
 
-import { DatabaseUserRepository } from '#auth/secondary/adapters/database_user_repository'
-import { JwtTokenProvider } from '#auth/secondary/adapters/jwt_token_provider'
-import { HashPasswordHasher } from '#auth/secondary/adapters/hash_password_hasher'
-import { RegisterUserService } from '#auth/service/register_user_service_implementation'
-import { LoginUserService } from '#auth/service/login_user_service'
-import { LucidMatchRepository } from '#match/secondary/adapters/lucid_match_repository'
-import { GetMatches } from '#match/service/get_matches'
-import GetMatchesController from '#match/http/get_matches_controller'
+const loginController = () => import('#auth/primary/http/login_controller')
+const registerController = () => import('#auth/primary/http/register_controller')
+const getMatchesController = () => import('#match/http/get_matches_controller')
 
-const userRepository = new DatabaseUserRepository()
-const tokenProvider = new JwtTokenProvider()
-const passwordHasher = new HashPasswordHasher()
-const registerService = new RegisterUserService(userRepository, passwordHasher)
-const loginService = new LoginUserService(userRepository, tokenProvider, passwordHasher)
-const matchRepository = new LucidMatchRepository()
-const getMatchesUseCase = new GetMatches(matchRepository)
-const getMatchesController = new GetMatchesController(getMatchesUseCase)
+router.post('/api/auth/register', [registerController])
 
-router.post('/api/auth/register', async ({ request, response }) => {
-  const { email, password } = request.only(['email', 'password'])
-  try {
-    const user = await registerService.execute(email, password)
-    return response.status(201).json({
-      id: user.id.toString(),
-      email: user.email.toString(),
-      roles: user.roles,
-    })
-  } catch (error) {
-    if (error.name === 'EmailAlreadyExistsException') {
-      return response.badRequest({ error: error.message })
-    }
-    throw error
-  }
-})
-
-router.post('/api/auth/login', async ({ request, response }) => {
-  const { email, password } = request.only(['email', 'password'])
-  try {
-    const result = await loginService.execute(email, password)
-    return response.ok(result)
-  } catch (error) {
-    if (error.name === 'InvalidCredentialsException') {
-      return response.unauthorized({ error: error.message })
-    }
-    throw error
-  }
-})
+router.post('/api/auth/login', [loginController])
 
 router.get('/', async () => {
   return {
@@ -71,4 +31,4 @@ router
   })
   .use(middleware.auth(Role.ADMIN))
 
-router.get('/api/matches', (ctx) => getMatchesController.handle(ctx))
+router.get('/api/matches', [getMatchesController])

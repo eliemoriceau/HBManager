@@ -5,6 +5,6 @@ export interface AuthenticationResult {
   roles: Role[]
 }
 
-export interface LoginUserUseCase {
-  execute(email: string, plainPassword: string): Promise<AuthenticationResult>
+export abstract class LoginUserUseCase {
+  abstract execute(email: string, plainPassword: string): Promise<AuthenticationResult>
 }

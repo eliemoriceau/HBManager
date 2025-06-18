@@ -3,7 +3,7 @@ import User from '#auth/domain/user'
 import { UserModel } from '#auth/secondary/infrastructure/models/user'
 import { EmailAlreadyExistsException } from '#auth/exceptions/email_already_exists_exception'
 
-export class DatabaseUserRepository implements UserRepository {
+export class DatabaseUserRepository extends UserRepository {
   async findByEmail(email: string): Promise<User | null> {
     const userModel = await UserModel.findBy('email', email)
     if (!userModel) {

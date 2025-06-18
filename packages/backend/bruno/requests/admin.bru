@@ -1,12 +1,15 @@
-meta:
+meta {
   name: Admin
   type: http
-  version: 1
-request:
-  url: "{{baseUrl}}/admin"
-  method: GET
-  headers:
-    - key: Authorization
-      value: Bearer <token>
-auth:
-  type: none
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/admin
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
