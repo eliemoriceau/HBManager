@@ -12,7 +12,11 @@ export default class UploadCsvController {
       return response.badRequest({ error: 'file is required' })
     }
 
-    await this.useCase.execute(file)
-    return response.created({ uploaded: true })
+    try {
+      await this.useCase.execute(file)
+      return response.created({ uploaded: true })
+    } catch (error) {
+      return response.badRequest({ error: error.message, template: '/docs/csv_template.csv' })
+    }
   }
 }
