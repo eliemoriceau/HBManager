@@ -33,7 +33,8 @@
     "#config/*": "./config/*.js",
     "#shared/*": "./app/shared/*.js",
     "#auth/*": "./app/auth/*.js",
-    "#match/*": "./app/modules/match/*.js"
+    "#match/*": "./app/modules/match/*.js",
+    "#importer/*": "./app/modules/importer/*.js"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^7.8.2",

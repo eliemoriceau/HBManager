@@ -1,12 +1,12 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { getMatchesValidator } from '#match/primary/http/get_matches_validator'
-import type { GetMatchesUseCase } from '#match/use_case/get_matches_use_case'
+import { GetMatchesUseCase } from '#match/use_case/get_matches_use_case'
 import { inject } from '@adonisjs/core'
 
+@inject()
 export default class GetMatchesController {
   constructor(private readonly useCase: GetMatchesUseCase) {}
 
-  @inject()
   async handle({ request, response }: HttpContext) {
     const payload = await getMatchesValidator.validate(request.qs())
     const matches = await this.useCase.execute(payload)
