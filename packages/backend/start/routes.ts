@@ -13,7 +13,8 @@ import { middleware } from '#start/kernel'
 
 const loginController = () => import('#auth/primary/http/login_controller')
 const registerController = () => import('#auth/primary/http/register_controller')
-const getMatchesController = () => import('#match/http/get_matches_controller')
+const getMatchesController = () =>
+  import('../app/modules/match/primary/http/get_matches_controller')
 
 router.post('/api/auth/register', [registerController])
 

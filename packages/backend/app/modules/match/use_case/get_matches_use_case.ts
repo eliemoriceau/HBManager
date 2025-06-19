@@ -7,6 +7,6 @@ export interface GetMatchesFilter {
   officielId?: string
 }
 
-export interface GetMatchesUseCase {
-  execute(filters?: GetMatchesFilter): Promise<Match[]>
+export abstract class GetMatchesUseCase {
+  abstract execute(filters?: GetMatchesFilter): Promise<Match[]>
 }

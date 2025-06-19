@@ -19,11 +19,11 @@ export interface MatchSearchCriteria {
  * Port d'accès aux données Match.
  * Fournit les méthodes de récupération des matchs pour la couche Domaine.
  */
-export interface MatchRepository {
+export abstract class MatchRepository {
   /**
    * Retourne l'ensemble des matchs disponibles.
    */
-  findAll(): Promise<Match[]>
+  abstract findAll(): Promise<Match[]>
 
   /**
    * Recherche des matchs correspondant aux critères spécifiés.
@@ -32,5 +32,5 @@ export interface MatchRepository {
    * @param criteria — filtres optionnels sur la période, les équipes ou les officiels.
    * @returns La liste des matchs satisfaisant les critères.
    */
-  findByCriteria(criteria: MatchSearchCriteria): Promise<Match[]>
+  abstract findByCriteria(criteria: MatchSearchCriteria): Promise<Match[]>
 }
