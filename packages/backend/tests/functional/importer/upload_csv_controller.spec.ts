@@ -13,4 +13,40 @@ test.group('UploadCsvController', () => {
       .send()
     response.assertStatus(201)
   })
+
+  test('rejects file larger than 5MB', async ({ client }) => {
+    const largeBuffer = Buffer.alloc(6 * 1024 * 1024, 'a')
+    const response = await client
+      .post('/api/import/csv')
+      .file('file', largeBuffer, {
+        filename: 'big.csv',
+        contentType: 'text/csv',
+      })
+      .send()
+    response.assertStatus(400)
+  })
+
+  test('rejects non UTF-8 encoding', async ({ client }) => {
+    const invalidBuffer = Buffer.from([0xff, 0xff])
+    const response = await client
+      .post('/api/import/csv')
+      .file('file', invalidBuffer, {
+        filename: 'enc.csv',
+        contentType: 'text/csv',
+      })
+      .send()
+    response.assertStatus(400)
+  })
+
+  test('rejects missing headers', async ({ client }) => {
+    const csv = `le;horaire;club rec;nom salle\n2024-01-01;10:00;A;Salle`
+    const response = await client
+      .post('/api/import/csv')
+      .file('file', Buffer.from(csv), {
+        filename: 'bad.csv',
+        contentType: 'text/csv',
+      })
+      .send()
+    response.assertStatus(400)
+  })
 })

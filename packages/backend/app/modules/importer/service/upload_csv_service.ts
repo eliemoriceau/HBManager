@@ -14,6 +14,24 @@ export class UploadCsvService extends UploadCsvUseCase {
       throw new Error("Le fichier n'a pas été traité")
     }
 
-    await fs.readFile(file.tmpPath)
+    if (file.size > 5 * 1024 * 1024) {
+      throw new Error('Fichier trop volumineux')
+    }
+
+    const buffer = await fs.readFile(file.tmpPath)
+
+    const utf8Check = Buffer.from(buffer.toString('utf8'), 'utf8')
+    if (!buffer.equals(utf8Check)) {
+      throw new Error('Encodage invalide : UTF-8 requis')
+    }
+
+    const [headerLine] = buffer.toString('utf8').split(/\r?\n/)
+    const headers = headerLine.split(';').map((h) => h.trim().toLowerCase())
+
+    const requiredHeaders = ['le', 'horaire', 'club rec', 'club vis', 'nom salle']
+    const missing = requiredHeaders.filter((h) => !headers.includes(h))
+    if (missing.length) {
+      throw new Error(`Entêtes manquantes: ${missing.join(', ')}`)
+    }
   }
 }

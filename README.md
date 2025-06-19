@@ -19,7 +19,7 @@
 
 HBManager facilite l'organisation des matchs de handball au sein des clubs en proposant :
 
-* **Import CSV** : ingestion automatique des rencontres via un fichier CSV conforme à la fédération.
+* **Import CSV** : ingestion automatique des rencontres via un fichier CSV conforme à la fédération. Un modèle est fourni dans `docs/csv_template.csv`.
 * **Calendrier interactif** : affichage des matchs passés et à venir, avec filtres par équipe, date et officiel.
 * **Gestion des équipes** : association domicile/extérieur pour chaque match.
 * **Gestion des officiels** : enregistrement et affectation des arbitres, scoreurs, chronométreurs.
