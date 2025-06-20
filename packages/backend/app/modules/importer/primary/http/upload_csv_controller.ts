@@ -13,8 +13,8 @@ export default class UploadCsvController {
     }
 
     try {
-      await this.useCase.execute(file)
-      return response.created({ uploaded: true })
+      const report = await this.useCase.execute(file)
+      return response.created({ uploaded: true, report })
     } catch (error) {
       return response.badRequest({ error: error.message, template: '/docs/csv_template.csv' })
     }
