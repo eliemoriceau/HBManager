@@ -1,5 +1,6 @@
 import { test } from '@japa/runner'
 import db from '@adonisjs/lucid/services/db'
+import { promises as fs } from 'node:fs'
 import { MatchModel } from '#match/secondary/infrastructure/models/match'
 import { DateTime } from 'luxon'
 
@@ -41,6 +42,9 @@ test.group('UploadCsvController', (group) => {
     response.assertStatus(201)
     const matches = await MatchModel.all()
     assert.lengthOf(matches, 1)
+    assert.property(response.body(), 'report')
+    const fileContent = JSON.parse(await fs.readFile('/tmp/import_report.json', 'utf8'))
+    assert.deepEqual(response.body().report, fileContent)
   })
 
   test('rejects file larger than 5MB', async ({ client }) => {
@@ -101,6 +105,28 @@ test.group('UploadCsvController', (group) => {
       .send()
 
     response.assertStatus(201)
+    const matches = await MatchModel.all()
+    assert.lengthOf(matches, 1)
+  })
+
+  test('reports invalid line', async ({ client, assert }) => {
+    const csv =
+      'code renc;le;horaire;club rec;club vis;nom salle\nCODE1;2025-01-01;12:00;Equipe A;Equipe B;Gym\nCODE2;bad;12:00;X;Y;Gym'
+    const response = await client
+      .post('/api/import/csv')
+      .file('file', Buffer.from(csv), {
+        filename: 'invalid.csv',
+        contentType: 'text/csv',
+      })
+      .send()
+
+    response.assertStatus(201)
+    assert.equal(response.body().report.totalLines, 2)
+    assert.equal(response.body().report.importedCount, 1)
+    assert.lengthOf(response.body().report.ignored, 1)
+    assert.equal(response.body().report.ignored[0].lineNumber, 3)
+    const fileContent = JSON.parse(await fs.readFile('/tmp/import_report.json', 'utf8'))
+    assert.deepEqual(response.body().report, fileContent)
     const matches = await MatchModel.all()
     assert.lengthOf(matches, 1)
   })
