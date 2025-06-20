@@ -9,8 +9,14 @@ const equipeHome = '11111111-1111-1111-1111-111111111111'
 const equipeAway = '22222222-2222-2222-2222-222222222222'
 const official = '33333333-3333-4333-8333-333333333333'
 
-function createMatch(date: string, heure = '12:00', officials: string[] = [official]) {
+function createMatch(
+  date: string,
+  heure = '12:00',
+  officials: string[] = [official],
+  id = Math.random().toString(36).slice(2)
+) {
   return Match.create({
+    id,
     date: new Date(date),
     heure,
     equipeDomicileId: equipeHome,
@@ -118,5 +124,28 @@ test.group('LucidMatchRepository', (group) => {
 
     assert.lengthOf(res, 1)
     assert.equal(res[0].id.toString(), match1.id.toString())
+  })
+
+  test('upsert creates or updates a match', async ({ assert }) => {
+    const repo = new LucidMatchRepository()
+    const match = createMatch('2025-05-05', '12:00', [official], 'code1')
+    await repo.upsert(match)
+
+    let models = await MatchModel.all()
+    assert.lengthOf(models, 1)
+
+    const updated = Match.create({
+      id: match.id.toString(),
+      date: match.date,
+      heure: match.heure,
+      equipeDomicileId: match.equipeDomicileId.toString(),
+      equipeExterieurId: match.equipeExterieurId.toString(),
+      officiels: ['new'],
+    })
+    await repo.upsert(updated)
+
+    models = await MatchModel.all()
+    assert.lengthOf(models, 1)
+    assert.deepEqual(models[0].officiels, ['new'])
   })
 })

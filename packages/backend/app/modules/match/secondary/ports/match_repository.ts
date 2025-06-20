@@ -33,4 +33,10 @@ export abstract class MatchRepository {
    * @returns La liste des matchs satisfaisant les critères.
    */
   abstract findByCriteria(criteria: MatchSearchCriteria): Promise<Match[]>
+
+  /**
+   * Crée ou met à jour un match en base selon son identifiant naturel.
+   * @param match Match à sauvegarder
+   */
+  abstract upsert(match: Match): Promise<void>
 }

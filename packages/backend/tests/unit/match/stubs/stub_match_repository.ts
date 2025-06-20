@@ -28,4 +28,13 @@ export class StubMatchRepository implements MatchRepository {
       return true
     })
   }
+
+  async upsert(match: Match): Promise<void> {
+    const index = this.matches.findIndex((m) => m.id.toString() === match.id.toString())
+    if (index >= 0) {
+      this.matches[index] = match
+    } else {
+      this.matches.push(match)
+    }
+  }
 }

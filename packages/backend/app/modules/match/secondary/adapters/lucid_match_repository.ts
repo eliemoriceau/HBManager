@@ -2,6 +2,7 @@ import Match from '#match/domain/match'
 import { StatutMatch } from '#match/domain/statut_match'
 import { MatchRepository, MatchSearchCriteria } from '#match/secondary/ports/match_repository'
 import { MatchModel } from '#match/secondary/infrastructure/models/match'
+import { DateTime } from 'luxon'
 
 export class LucidMatchRepository implements MatchRepository {
   private toDomain(model: MatchModel): Match {
@@ -41,5 +42,26 @@ export class LucidMatchRepository implements MatchRepository {
     }
     const models = await query
     return models.map((m) => this.toDomain(m))
+  }
+
+  async upsert(match: Match): Promise<void> {
+    const existing = await MatchModel.find(match.id.toString())
+
+    if (existing) {
+      existing.officiels = match.officiels.map((o) => o.toString())
+      existing.statut = match.statut
+      await existing.save()
+      return
+    }
+
+    await MatchModel.create({
+      id: match.id.toString(),
+      date: DateTime.fromJSDate(match.date),
+      heure: match.heure,
+      equipeDomicileId: match.equipeDomicileId.toString(),
+      equipeExterieurId: match.equipeExterieurId.toString(),
+      officiels: match.officiels.map((o) => o.toString()),
+      statut: match.statut,
+    })
   }
 }
