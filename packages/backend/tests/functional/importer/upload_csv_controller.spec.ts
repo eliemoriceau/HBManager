@@ -1,9 +1,36 @@
 import { test } from '@japa/runner'
+import db from '@adonisjs/lucid/services/db'
+import { MatchModel } from '#match/secondary/infrastructure/models/match'
+import { DateTime } from 'luxon'
 
-const sampleCsv = `semaine;num poule;competition;poule;J;le;horaire;club rec;club vis;club hote;arb1 designe;arb2 designe;observateur;delegue;code renc;nom salle;adresse salle;CP;Ville;colle;Coul. Rec;Coul. Gard. Rec;Coul. Vis;Coul. Gard. Vis;Ent. Rec;Tel Ent. Rec;Corresp. Rec;Tel Corresp. Rec;Ent. Vis;Tel Ent. Vis;Corresp. Vis;Tel Corresp. Vis;Num rec;Num vis\n2024-14;M624465072;u12m-44;U12M D8;7;07/04/2024;09/04/2024 14:30:00;HBC PORNIC;CHABOSSIERE OLYMPIQUE CLUB HB 2;HBC PORNIC;;;;;TAFEQMK;VAL SAINT MARTIN (SALLE 2); rue val saint martin;44210;PORNIC;Toutes colles interdites;Bleu;;Rouge-Noir;Jaune-Bleu;CHAUVET FRANCOISE;330668831514;CHAUVET FRANCOISE;330668831514;GUMIERO ELYO;330648677907;PASCAL MATHIEU;330616545866;6244036;6244011`
+const sampleCsv = `code renc;le;horaire;club rec;club vis;nom salle\nCODE1;2025-01-01;12:00;Equipe A;Equipe B;Gymnase`
 
-test.group('UploadCsvController', () => {
-  test('uploads CSV file', async ({ client }) => {
+test.group('UploadCsvController', (group) => {
+  group.setup(async () => {
+    await db.connection().schema.createTable('matches', (table) => {
+      table.uuid('id').primary()
+      table.date('date').notNullable()
+      table.string('heure').notNullable()
+      table.string('equipe_domicile_id').notNullable()
+      table.string('equipe_exterieur_id').notNullable()
+      table.text('officiels').notNullable()
+      table.string('statut').notNullable()
+      table.string('motif_annulation')
+      table.string('motif_report')
+      table.integer('score_domicile')
+      table.integer('score_exterieur')
+    })
+  })
+
+  group.each.teardown(async () => {
+    await db.connection().truncate('matches')
+  })
+
+  group.teardown(async () => {
+    await db.connection().schema.dropTable('matches')
+    await db.manager.closeAll()
+  })
+  test('uploads CSV file', async ({ client, assert }) => {
     const response = await client
       .post('/api/import/csv')
       .file('file', Buffer.from(sampleCsv), {
@@ -12,6 +39,8 @@ test.group('UploadCsvController', () => {
       })
       .send()
     response.assertStatus(201)
+    const matches = await MatchModel.all()
+    assert.lengthOf(matches, 1)
   })
 
   test('rejects file larger than 5MB', async ({ client }) => {
@@ -39,7 +68,7 @@ test.group('UploadCsvController', () => {
   })
 
   test('rejects missing headers', async ({ client }) => {
-    const csv = `le;horaire;club rec;nom salle\n2024-01-01;10:00;A;Salle`
+    const csv = `le;horaire;club rec;club vis;nom salle\n2024-01-01;10:00;A;B;Salle`
     const response = await client
       .post('/api/import/csv')
       .file('file', Buffer.from(csv), {
@@ -48,5 +77,31 @@ test.group('UploadCsvController', () => {
       })
       .send()
     response.assertStatus(400)
+  })
+
+  test('does not duplicate existing match', async ({ client, assert }) => {
+    await MatchModel.create({
+      id: 'CODE1',
+      date: DateTime.fromISO('2025-01-01'),
+      heure: '12:00',
+      equipeDomicileId: 'Equipe A',
+      equipeExterieurId: 'Equipe B',
+      officiels: [],
+      statut: 'À venir',
+    })
+
+    const csv =
+      'code renc;le;horaire;club rec;club vis;nom salle\nCODE1;2025-01-01;12:00;Equipe A;Equipe B;Gym'
+    const response = await client
+      .post('/api/import/csv')
+      .file('file', Buffer.from(csv), {
+        filename: 'dup.csv',
+        contentType: 'text/csv',
+      })
+      .send()
+
+    response.assertStatus(201)
+    const matches = await MatchModel.all()
+    assert.lengthOf(matches, 1)
   })
 })
