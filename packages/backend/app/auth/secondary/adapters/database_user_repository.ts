@@ -2,19 +2,27 @@ import { UserRepository } from '#auth/secondary/ports/user_repository'
 import User from '#auth/domain/user'
 import { UserModel } from '#auth/secondary/infrastructure/models/user'
 import { EmailAlreadyExistsException } from '#auth/exceptions/email_already_exists_exception'
+import { DatabaseConnectionException } from '#exceptions/database_connection_exception'
 
 export class DatabaseUserRepository extends UserRepository {
   async findByEmail(email: string): Promise<User | null> {
-    const userModel = await UserModel.findBy('email', email)
-    if (!userModel) {
-      return null
+    try {
+      const userModel = await UserModel.findBy('email', email)
+      if (!userModel) {
+        return null
+      }
+      return User.create({
+        id: userModel.id,
+        email: userModel.email,
+        password: userModel.password,
+        roles: userModel.roles,
+      })
+    } catch (error) {
+      if (error && ['ECONNREFUSED', 'ENOTFOUND'].includes((error as any).code)) {
+        throw new DatabaseConnectionException()
+      }
+      throw error
     }
-    return User.create({
-      id: userModel.id,
-      email: userModel.email,
-      password: userModel.password,
-      roles: userModel.roles,
-    })
   }
 
   async save(user: User): Promise<void> {
@@ -32,6 +40,9 @@ export class DatabaseUserRepository extends UserRepository {
       await trx.commit()
     } catch (error) {
       await trx.rollback()
+      if (error && ['ECONNREFUSED', 'ENOTFOUND'].includes((error as any).code)) {
+        throw new DatabaseConnectionException()
+      }
       if (error.code === '23505' || error.code?.startsWith('SQLITE_CONSTRAINT')) {
         throw new EmailAlreadyExistsException(user.email.toString())
       }
@@ -40,7 +51,14 @@ export class DatabaseUserRepository extends UserRepository {
   }
 
   async exists(email: string): Promise<boolean> {
-    const userModel = await UserModel.findBy('email', email)
-    return !!userModel
+    try {
+      const userModel = await UserModel.findBy('email', email)
+      return !!userModel
+    } catch (error) {
+      if (error && ['ECONNREFUSED', 'ENOTFOUND'].includes((error as any).code)) {
+        throw new DatabaseConnectionException()
+      }
+      throw error
+    }
   }
 }
