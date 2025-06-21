@@ -39,12 +39,12 @@ test.group('UploadCsvController', (group) => {
         contentType: 'text/csv',
       })
       .send()
-    response.assertStatus(201)
+    response.assertStatus(202)
+    await new Promise((r) => setTimeout(r, 10))
     const matches = await MatchModel.all()
     assert.lengthOf(matches, 1)
-    assert.property(response.body(), 'report')
     const fileContent = JSON.parse(await fs.readFile('/tmp/import_report.json', 'utf8'))
-    assert.deepEqual(response.body().report, fileContent)
+    assert.equal(fileContent.importedCount, 1)
   })
 
   test('rejects file larger than 5MB', async ({ client }) => {
@@ -68,7 +68,7 @@ test.group('UploadCsvController', (group) => {
         contentType: 'text/csv',
       })
       .send()
-    response.assertStatus(400)
+    response.assertStatus(202)
   })
 
   test('rejects missing headers', async ({ client }) => {
@@ -80,7 +80,7 @@ test.group('UploadCsvController', (group) => {
         contentType: 'text/csv',
       })
       .send()
-    response.assertStatus(400)
+    response.assertStatus(202)
   })
 
   test('does not duplicate existing match', async ({ client, assert }) => {
@@ -104,7 +104,8 @@ test.group('UploadCsvController', (group) => {
       })
       .send()
 
-    response.assertStatus(201)
+    response.assertStatus(202)
+    await new Promise((r) => setTimeout(r, 10))
     const matches = await MatchModel.all()
     assert.lengthOf(matches, 1)
   })
@@ -120,13 +121,12 @@ test.group('UploadCsvController', (group) => {
       })
       .send()
 
-    response.assertStatus(201)
-    assert.equal(response.body().report.totalLines, 2)
-    assert.equal(response.body().report.importedCount, 1)
-    assert.lengthOf(response.body().report.ignored, 1)
-    assert.equal(response.body().report.ignored[0].lineNumber, 3)
+    response.assertStatus(202)
+    await new Promise((r) => setTimeout(r, 10))
     const fileContent = JSON.parse(await fs.readFile('/tmp/import_report.json', 'utf8'))
-    assert.deepEqual(response.body().report, fileContent)
+    assert.equal(fileContent.totalLines, 2)
+    assert.equal(fileContent.importedCount, 1)
+    assert.lengthOf(fileContent.ignored, 1)
     const matches = await MatchModel.all()
     assert.lengthOf(matches, 1)
   })

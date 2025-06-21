@@ -8,6 +8,8 @@ import fs from 'node:fs'
 
 process.env.JWT_SECRET = 'testsecret'
 process.env.JWT_EXPIRES_IN = '1h'
+process.env.REDIS_HOST = '127.0.0.1'
+process.env.REDIS_PORT = '6379'
 
 /**
  * This file is imported by the "bin/test.ts" entrypoint file
