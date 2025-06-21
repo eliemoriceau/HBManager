@@ -48,7 +48,8 @@ HBManager facilite l'organisation des matchs de handball au sein des clubs en pr
 ## Prérequis
 
 * Docker & Docker Compose
-* Node.js (>= 16) et npm/yarn
+* Node.js (>= 16) et Yarn
+* Ce projet utilise **Yarn** (v4) comme gestionnaire de paquets. Assurez-vous de disposer de Yarn avant de lancer les commandes.
 * Accès à un cluster PostgreSQL (local via Docker ou distant)
 
 ## Installation
@@ -77,10 +78,10 @@ HBManager facilite l'organisation des matchs de handball au sein des clubs en pr
 
 ### Scripts utiles
 
-* `npm run dev` : démarre frontend et backend en mode développement
-* `npm run build` : génère les bundles de production
-* `npm test` : lance les tests unitaires
-* `npm run lint` : analyse le code (ESLint + Prettier)
+* `yarn dev` : démarre frontend et backend en mode développement
+* `yarn build` : génère les bundles de production
+* `yarn test` : lance les tests unitaires
+* `yarn lint` : analyse le code (ESLint + Prettier)
 
 ## Structure du projet
 
