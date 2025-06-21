@@ -1,0 +1,21 @@
+openapi: 3.0.0
+info:
+  title: HBManager API
+  version: 1.0.0
+paths:
+  /api/import/csv:
+    post:
+      summary: Import CSV in background
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '202':
+          description: Job queued
