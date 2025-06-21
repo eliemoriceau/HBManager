@@ -1,5 +1,6 @@
 import app from '@adonisjs/core/services/app'
 import { HttpContext, ExceptionHandler } from '@adonisjs/core/http'
+import { DatabaseConnectionException } from '#exceptions/database_connection_exception'
 
 export default class HttpExceptionHandler extends ExceptionHandler {
   /**
@@ -13,6 +14,12 @@ export default class HttpExceptionHandler extends ExceptionHandler {
    * response to the client
    */
   async handle(error: unknown, ctx: HttpContext) {
+    if (error instanceof DatabaseConnectionException) {
+      return ctx.response.status(503).json({
+        error: error.message,
+        template: '/docs/csv_template.csv',
+      })
+    }
     return super.handle(error, ctx)
   }
 

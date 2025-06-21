@@ -3,6 +3,7 @@ import { StatutMatch } from '#match/domain/statut_match'
 import { MatchRepository, MatchSearchCriteria } from '#match/secondary/ports/match_repository'
 import { MatchModel } from '#match/secondary/infrastructure/models/match'
 import { DateTime } from 'luxon'
+import { DatabaseConnectionException } from '#exceptions/database_connection_exception'
 
 export class LucidMatchRepository implements MatchRepository {
   private toDomain(model: MatchModel): Match {
@@ -18,8 +19,15 @@ export class LucidMatchRepository implements MatchRepository {
   }
 
   async findAll(): Promise<Match[]> {
-    const models = await MatchModel.all()
-    return models.map((m) => this.toDomain(m))
+    try {
+      const models = await MatchModel.all()
+      return models.map((m) => this.toDomain(m))
+    } catch (error) {
+      if (error && ['ECONNREFUSED', 'ENOTFOUND'].includes((error as any).code)) {
+        throw new DatabaseConnectionException()
+      }
+      throw error
+    }
   }
 
   async findByCriteria(criteria: MatchSearchCriteria): Promise<Match[]> {
@@ -40,28 +48,42 @@ export class LucidMatchRepository implements MatchRepository {
     if (criteria.officielId) {
       query.whereRaw('officiels LIKE ?', [`%${criteria.officielId}%`])
     }
-    const models = await query
-    return models.map((m) => this.toDomain(m))
+    try {
+      const models = await query
+      return models.map((m) => this.toDomain(m))
+    } catch (error) {
+      if (error && ['ECONNREFUSED', 'ENOTFOUND'].includes((error as any).code)) {
+        throw new DatabaseConnectionException()
+      }
+      throw error
+    }
   }
 
   async upsert(match: Match): Promise<void> {
-    const existing = await MatchModel.find(match.id.toString())
+    try {
+      const existing = await MatchModel.find(match.id.toString())
 
-    if (existing) {
-      existing.officiels = match.officiels.map((o) => o.toString())
-      existing.statut = match.statut
-      await existing.save()
-      return
+      if (existing) {
+        existing.officiels = match.officiels.map((o) => o.toString())
+        existing.statut = match.statut
+        await existing.save()
+        return
+      }
+
+      await MatchModel.create({
+        id: match.id.toString(),
+        date: DateTime.fromJSDate(match.date),
+        heure: match.heure,
+        equipeDomicileId: match.equipeDomicileId.toString(),
+        equipeExterieurId: match.equipeExterieurId.toString(),
+        officiels: match.officiels.map((o) => o.toString()),
+        statut: match.statut,
+      })
+    } catch (error) {
+      if (error && ['ECONNREFUSED', 'ENOTFOUND'].includes((error as any).code)) {
+        throw new DatabaseConnectionException()
+      }
+      throw error
     }
-
-    await MatchModel.create({
-      id: match.id.toString(),
-      date: DateTime.fromJSDate(match.date),
-      heure: match.heure,
-      equipeDomicileId: match.equipeDomicileId.toString(),
-      equipeExterieurId: match.equipeExterieurId.toString(),
-      officiels: match.officiels.map((o) => o.toString()),
-      statut: match.statut,
-    })
   }
 }
