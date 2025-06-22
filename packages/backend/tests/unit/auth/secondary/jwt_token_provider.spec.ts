@@ -1,5 +1,6 @@
 import { test } from '@japa/runner'
 import { JwtTokenProvider } from '#auth/secondary/adapters/jwt_token_provider'
+import { TokenExpiredError } from '#auth/exceptions/token_expired_error'
 import env from '#start/env'
 
 process.env.JWT_SECRET = 'testsecret'
@@ -27,6 +28,6 @@ test.group('JwtTokenProvider', () => {
     const token = provider.generate(payload)
     // Wait for token to expire (1s)
     await new Promise((r) => setTimeout(r, 1100))
-    assert.throws(() => provider.verify(token))
+    assert.throws(() => provider.verify(token), TokenExpiredError)
   })
 })
