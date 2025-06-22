@@ -53,58 +53,63 @@ export class UploadCsvService extends UploadCsvUseCase {
       throw new Error('Fichier trop volumineux')
     }
 
-    const buffer = await fs.readFile(file.tmpPath)
+    const tmpPath = file.tmpPath
+    try {
+      const buffer = await fs.readFile(tmpPath)
 
-    const utf8Check = Buffer.from(buffer.toString('utf8'), 'utf8')
-    if (!buffer.equals(utf8Check)) {
-      throw new Error('Encodage invalide : UTF-8 requis')
-    }
-
-    const [headerLine] = buffer.toString('utf8').split(/\r?\n/)
-    const headers = headerLine.split(';').map((h) => h.trim().toLowerCase())
-
-    const requiredHeaders = ['code renc', 'le', 'horaire', 'club rec', 'club vis', 'nom salle']
-    const missing = requiredHeaders.filter((h) => !headers.includes(h))
-    if (missing.length) {
-      throw new Error(`Entêtes manquantes: ${missing.join(', ')}`)
-    }
-
-    const lines = buffer
-      .toString('utf8')
-      .split(/\r?\n/)
-      .slice(1)
-      .filter((l) => l.trim().length > 0)
-
-    const report: CsvImportReport = {
-      totalLines: lines.length,
-      importedCount: 0,
-      ignored: [],
-    }
-
-    for (const [index, line] of lines.entries()) {
-      try {
-        const [codeRenc, le, horaire, clubRec, clubVis] = line.split(';')
-        const date = parseDate(le)
-        const heure = parseTime(horaire)
-        const match = Match.create({
-          id: codeRenc.trim(),
-          date,
-          heure,
-          equipeDomicileId: clubRec.trim(),
-          equipeExterieurId: clubVis.trim(),
-        })
-        await this.matchRepository.upsert(match)
-        report.importedCount++
-      } catch (error) {
-        report.ignored.push({
-          lineNumber: index + 2,
-          content: line,
-          reason: (error as Error).message,
-        })
+      const utf8Check = Buffer.from(buffer.toString('utf8'), 'utf8')
+      if (!buffer.equals(utf8Check)) {
+        throw new Error('Encodage invalide : UTF-8 requis')
       }
-    }
 
-    await this.reportRepository.save(report)
-    return report
+      const [headerLine] = buffer.toString('utf8').split(/\r?\n/)
+      const headers = headerLine.split(';').map((h) => h.trim().toLowerCase())
+
+      const requiredHeaders = ['code renc', 'le', 'horaire', 'club rec', 'club vis', 'nom salle']
+      const missing = requiredHeaders.filter((h) => !headers.includes(h))
+      if (missing.length) {
+        throw new Error(`Entêtes manquantes: ${missing.join(', ')}`)
+      }
+
+      const lines = buffer
+        .toString('utf8')
+        .split(/\r?\n/)
+        .slice(1)
+        .filter((l) => l.trim().length > 0)
+
+      const report: CsvImportReport = {
+        totalLines: lines.length,
+        importedCount: 0,
+        ignored: [],
+      }
+
+      for (const [index, line] of lines.entries()) {
+        try {
+          const [codeRenc, le, horaire, clubRec, clubVis] = line.split(';')
+          const date = parseDate(le)
+          const heure = parseTime(horaire)
+          const match = Match.create({
+            id: codeRenc.trim(),
+            date,
+            heure,
+            equipeDomicileId: clubRec.trim(),
+            equipeExterieurId: clubVis.trim(),
+          })
+          await this.matchRepository.upsert(match)
+          report.importedCount++
+        } catch (error) {
+          report.ignored.push({
+            lineNumber: index + 2,
+            content: line,
+            reason: (error as Error).message,
+          })
+        }
+      }
+
+      await this.reportRepository.save(report)
+      return report
+    } finally {
+      await fs.unlink(tmpPath)
+    }
   }
 }
