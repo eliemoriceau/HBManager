@@ -6,9 +6,12 @@ import { promises as fs } from 'node:fs'
 import { join } from 'node:path'
 import os from 'node:os'
 import type { MultipartFile } from '@adonisjs/bodyparser'
+import { Identifier } from '#shared/domaine/identifier'
 
-const csvContent =
-  'code renc;le;horaire;club rec;club vis;nom salle\nCODE1;2025-01-01;12:00;A;B;Gym'
+const csvId = Identifier.generate().toString()
+const equipeHome = '11111111-1111-1111-1111-111111111111'
+const equipeAway = '22222222-2222-2222-2222-222222222222'
+const csvContent = `code renc;le;horaire;club rec;club vis;nom salle\n${csvId};2025-01-01;12:00;${equipeHome};${equipeAway};Gym`
 
 /**
  * Tests unitaires pour UploadCsvService
