@@ -1,8 +1,8 @@
 import { test } from '@japa/runner'
-import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
 import Match from '#match/domain/match'
 import { MatchModel } from '#match/secondary/infrastructure/models/match'
+import testUtils from '@adonisjs/core/services/test_utils'
 
 const equipeHome = '11111111-1111-1111-1111-111111111111'
 const equipeAway = '22222222-2222-2222-2222-222222222222'
@@ -19,29 +19,8 @@ function createMatch(date: string, heure = '12:00', officials: string[] = [offic
 }
 
 test.group('GetMatchesController', (group) => {
-  group.setup(async () => {
-    await db.connection().schema.createTable('matches', (table) => {
-      table.uuid('id').primary()
-      table.date('date').notNullable()
-      table.string('heure').notNullable()
-      table.uuid('equipe_domicile_id').notNullable()
-      table.uuid('equipe_exterieur_id').notNullable()
-      table.text('officiels').notNullable()
-      table.string('statut').notNullable()
-      table.string('motif_annulation')
-      table.string('motif_report')
-      table.integer('score_domicile')
-      table.integer('score_exterieur')
-    })
-  })
-
-  group.each.teardown(async () => {
-    await db.connection().truncate('matches')
-  })
-
-  group.teardown(async () => {
-    await db.connection().schema.dropTable('matches')
-    await db.manager.closeAll()
+  group.each.setup(async () => {
+    await testUtils.db().withGlobalTransaction()
   })
 
   test('returns all matches', async ({ client, assert }) => {

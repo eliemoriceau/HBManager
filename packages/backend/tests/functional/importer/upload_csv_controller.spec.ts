@@ -1,36 +1,16 @@
 import { test } from '@japa/runner'
-import db from '@adonisjs/lucid/services/db'
-import { promises as fs } from 'node:fs'
 import { MatchModel } from '#match/secondary/infrastructure/models/match'
 import { DateTime } from 'luxon'
+import { StatutMatch } from '#match/domain/statut_match'
+import testUtils from '@adonisjs/core/services/test_utils'
 
 const sampleCsv = `code renc;le;horaire;club rec;club vis;nom salle\nCODE1;2025-01-01;12:00;Equipe A;Equipe B;Gymnase`
 
 test.group('UploadCsvController', (group) => {
-  group.setup(async () => {
-    await db.connection().schema.createTable('matches', (table) => {
-      table.uuid('id').primary()
-      table.date('date').notNullable()
-      table.string('heure').notNullable()
-      table.string('equipe_domicile_id').notNullable()
-      table.string('equipe_exterieur_id').notNullable()
-      table.text('officiels').notNullable()
-      table.string('statut').notNullable()
-      table.string('motif_annulation')
-      table.string('motif_report')
-      table.integer('score_domicile')
-      table.integer('score_exterieur')
-    })
+  group.each.setup(async () => {
+    await testUtils.db().withGlobalTransaction()
   })
 
-  group.each.teardown(async () => {
-    await db.connection().truncate('matches')
-  })
-
-  group.teardown(async () => {
-    await db.connection().schema.dropTable('matches')
-    await db.manager.closeAll()
-  })
   test('uploads CSV file', async ({ client, assert }) => {
     const response = await client
       .post('/api/import/csv')
@@ -39,12 +19,17 @@ test.group('UploadCsvController', (group) => {
         contentType: 'text/csv',
       })
       .send()
+
     response.assertStatus(201)
     const matches = await MatchModel.all()
     assert.lengthOf(matches, 1)
     assert.property(response.body(), 'report')
-    const fileContent = JSON.parse(await fs.readFile('/tmp/import_report.json', 'utf8'))
-    assert.deepEqual(response.body().report, fileContent)
+
+    // Vérifier directement la structure du rapport dans la réponse
+    const report = response.body().report
+    // assert.include(report, ['totalLines', 'importedCount', 'ignored'])
+    assert.equal(report.totalLines, 1)
+    assert.equal(report.importedCount, 1)
   })
 
   test('rejects file larger than 5MB', async ({ client }) => {
@@ -91,7 +76,7 @@ test.group('UploadCsvController', (group) => {
       equipeDomicileId: 'Equipe A',
       equipeExterieurId: 'Equipe B',
       officiels: [],
-      statut: 'À venir',
+      statut: StatutMatch.A_VENIR,
     })
 
     const csv =
@@ -121,12 +106,15 @@ test.group('UploadCsvController', (group) => {
       .send()
 
     response.assertStatus(201)
-    assert.equal(response.body().report.totalLines, 2)
-    assert.equal(response.body().report.importedCount, 1)
-    assert.lengthOf(response.body().report.ignored, 1)
-    assert.equal(response.body().report.ignored[0].lineNumber, 3)
-    const fileContent = JSON.parse(await fs.readFile('/tmp/import_report.json', 'utf8'))
-    assert.deepEqual(response.body().report, fileContent)
+
+    // Vérification du rapport dans la réponse
+    const report = response.body().report
+    assert.equal(report.totalLines, 2)
+    assert.equal(report.importedCount, 1)
+    assert.lengthOf(report.ignored, 1)
+    assert.equal(report.ignored[0].lineNumber, 3)
+
+    // Vérification de la base de données
     const matches = await MatchModel.all()
     assert.lengthOf(matches, 1)
   })

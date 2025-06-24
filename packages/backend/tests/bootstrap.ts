@@ -27,7 +27,7 @@ export const plugins: Config['plugins'] = [assert(), apiClient(), pluginAdonisJS
  * The teardown functions are executed after all the tests
  */
 export const runnerHooks: Required<Pick<Config, 'setup' | 'teardown'>> = {
-  setup: [() => fs.mkdirSync(app.tmpPath(), { recursive: true })],
+  setup: [() => fs.mkdirSync(app.tmpPath(), { recursive: true }), () => testUtils.db().truncate()],
   teardown: [],
 }
 
