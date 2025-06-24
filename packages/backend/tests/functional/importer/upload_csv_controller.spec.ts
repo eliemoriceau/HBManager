@@ -3,8 +3,13 @@ import { MatchModel } from '#match/secondary/infrastructure/models/match'
 import { DateTime } from 'luxon'
 import { StatutMatch } from '#match/domain/statut_match'
 import testUtils from '@adonisjs/core/services/test_utils'
+import { Identifier } from '#shared/domaine/identifier'
 
-const sampleCsv = `code renc;le;horaire;club rec;club vis;nom salle\nCODE1;2025-01-01;12:00;Equipe A;Equipe B;Gymnase`
+const id1 = Identifier.generate().toString()
+const id2 = Identifier.generate().toString()
+const equipeHome = '11111111-1111-1111-1111-111111111111'
+const equipeAway = '22222222-2222-2222-2222-222222222222'
+const sampleCsv = `code renc;le;horaire;club rec;club vis;nom salle\n${id1};2025-01-01;12:00;${equipeHome};${equipeAway};Gymnase`
 
 test.group('UploadCsvController', (group) => {
   group.each.setup(() => testUtils.db().truncate())
@@ -67,17 +72,16 @@ test.group('UploadCsvController', (group) => {
 
   test('does not duplicate existing match', async ({ client, assert }) => {
     await MatchModel.create({
-      id: 'CODE1',
+      id: id1,
       date: DateTime.fromISO('2025-01-01'),
       heure: '12:00',
-      equipeDomicileId: 'Equipe A',
-      equipeExterieurId: 'Equipe B',
+      equipeDomicileId: equipeHome,
+      equipeExterieurId: equipeAway,
       officiels: [],
       statut: StatutMatch.A_VENIR,
     })
 
-    const csv =
-      'code renc;le;horaire;club rec;club vis;nom salle\nCODE1;2025-01-01;12:00;Equipe A;Equipe B;Gym'
+    const csv = `code renc;le;horaire;club rec;club vis;nom salle\n${id1};2025-01-01;12:00;${equipeHome};${equipeAway};Gym`
     const response = await client
       .post('/api/import/csv')
       .file('file', Buffer.from(csv), {
@@ -92,8 +96,7 @@ test.group('UploadCsvController', (group) => {
   })
 
   test('reports invalid line', async ({ client, assert }) => {
-    const csv =
-      'code renc;le;horaire;club rec;club vis;nom salle\nCODE1;2025-01-01;12:00;Equipe A;Equipe B;Gym\nCODE2;bad;12:00;X;Y;Gym'
+    const csv = `code renc;le;horaire;club rec;club vis;nom salle\n${id1};2025-01-01;12:00;${equipeHome};${equipeAway};Gym\n${id2};bad;12:00;${equipeHome};${equipeAway};Gym`
     const response = await client
       .post('/api/import/csv')
       .file('file', Buffer.from(csv), {

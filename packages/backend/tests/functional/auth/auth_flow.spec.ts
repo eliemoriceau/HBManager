@@ -3,6 +3,7 @@ import { test } from '@japa/runner'
 import { UserModel } from '#auth/secondary/infrastructure/models/user'
 import { Role } from '#auth/domain/role'
 import logger from '@adonisjs/core/services/logger'
+import { Identifier } from '#shared/domaine/identifier'
 
 process.env.JWT_SECRET = 'testsecret'
 process.env.JWT_EXPIRES_IN = '1h'
@@ -25,7 +26,12 @@ test.group('AuthFlow', (group) => {
       .send()
     protectedRes.assertOk()
   }).setup(async () => {
-    await UserModel.create({ email: 'admin@example.com', password: 'secret', roles: [Role.ADMIN] })
+    await UserModel.create({
+      id: Identifier.generate().toString(),
+      email: 'admin@example.com',
+      password: 'secret',
+      roles: [Role.ADMIN],
+    })
   })
 
   test('rejects access without token', async ({ client }) => {

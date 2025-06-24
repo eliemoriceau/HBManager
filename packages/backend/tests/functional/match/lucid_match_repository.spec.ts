@@ -2,6 +2,7 @@ import { test } from '@japa/runner'
 import { LucidMatchRepository } from '#match/secondary/adapters/lucid_match_repository'
 import { MatchModel } from '#match/secondary/infrastructure/models/match'
 import Match from '#match/domain/match'
+import { Identifier } from '#shared/domaine/identifier'
 import { DateTime } from 'luxon'
 import testUtils from '@adonisjs/core/services/test_utils'
 
@@ -13,7 +14,7 @@ function createMatch(
   date: string,
   heure = '12:00',
   officials: string[] = [official],
-  id = Math.random().toString(36).slice(2)
+  id = Identifier.generate().toString()
 ) {
   return Match.create({
     id,
@@ -104,24 +105,26 @@ test.group('LucidMatchRepository', (group) => {
 
   test('upsert creates or updates a match', async ({ assert }) => {
     const repo = new LucidMatchRepository()
-    const match = createMatch('2025-05-05', '12:00', [official], 'code1')
+    const matchId = Identifier.generate().toString()
+    const match = createMatch('2025-05-05', '12:00', [official], matchId)
     await repo.upsert(match)
 
     let models = await MatchModel.all()
     assert.lengthOf(models, 1)
 
+    const newOfficial = Identifier.generate().toString()
     const updated = Match.create({
       id: match.id.toString(),
       date: match.date,
       heure: match.heure,
       equipeDomicileId: match.equipeDomicileId.toString(),
       equipeExterieurId: match.equipeExterieurId.toString(),
-      officiels: ['new'],
+      officiels: [newOfficial],
     })
     await repo.upsert(updated)
 
     models = await MatchModel.all()
     assert.lengthOf(models, 1)
-    assert.deepEqual(models[0].officiels, ['new'])
+    assert.deepEqual(models[0].officiels, [newOfficial])
   })
 })
