@@ -7,10 +7,7 @@ import testUtils from '@adonisjs/core/services/test_utils'
 const sampleCsv = `code renc;le;horaire;club rec;club vis;nom salle\nCODE1;2025-01-01;12:00;Equipe A;Equipe B;Gymnase`
 
 test.group('UploadCsvController', (group) => {
-  group.each.setup(async () => {
-    await testUtils.db().withGlobalTransaction()
-  })
-
+  group.each.setup(() => testUtils.db().truncate())
   test('uploads CSV file', async ({ client, assert }) => {
     const response = await client
       .post('/api/import/csv')

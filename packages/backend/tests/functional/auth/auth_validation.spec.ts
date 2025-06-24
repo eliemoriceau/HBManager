@@ -1,14 +1,9 @@
 import { test } from '@japa/runner'
-import testUtils from '@adonisjs/core/services/test_utils'
 
 process.env.JWT_SECRET = 'testsecret'
 process.env.JWT_EXPIRES_IN = '1h'
 
-test.group('AuthValidation', (group) => {
-  group.each.setup(async () => {
-    await testUtils.db().withGlobalTransaction()
-  })
-
+test.group('AuthValidation', () => {
   test('rejects invalid login payload', async ({ client }) => {
     const response = await client.post('/api/auth/login').json({ password: 'azer' })
     response.assertStatus(422)

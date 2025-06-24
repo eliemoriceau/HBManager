@@ -2,13 +2,8 @@ import { test } from '@japa/runner'
 import { DatabaseUserRepository } from '#auth/secondary/adapters/database_user_repository'
 import User from '#auth/domain/user'
 import { Role } from '#auth/domain/role'
-import testUtils from '@adonisjs/core/services/test_utils'
 
-test.group('DatabaseUserRepository', (group) => {
-  group.each.setup(async () => {
-    await testUtils.db().withGlobalTransaction()
-  })
-
+test.group('DatabaseUserRepository', () => {
   test('save and findByEmail', async ({ assert }) => {
     const repo = new DatabaseUserRepository()
     const user = User.create({ email: 'a@b.com', password: 'pass', roles: [Role.GUEST] })

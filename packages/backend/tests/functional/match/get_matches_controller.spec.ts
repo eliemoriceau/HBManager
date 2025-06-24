@@ -19,10 +19,7 @@ function createMatch(date: string, heure = '12:00', officials: string[] = [offic
 }
 
 test.group('GetMatchesController', (group) => {
-  group.each.setup(async () => {
-    await testUtils.db().withGlobalTransaction()
-  })
-
+  group.each.setup(() => testUtils.db().truncate())
   test('returns all matches', async ({ client, assert }) => {
     const match1 = createMatch('2025-01-01')
     const match2 = createMatch('2025-01-02')

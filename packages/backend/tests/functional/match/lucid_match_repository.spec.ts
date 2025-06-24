@@ -26,10 +26,7 @@ function createMatch(
 }
 
 test.group('LucidMatchRepository', (group) => {
-  group.each.setup(async () => {
-    await testUtils.db().withGlobalTransaction()
-  })
-
+  group.each.setup(() => testUtils.db().truncate())
   test('findAll returns all matches', async ({ assert }) => {
     const match1 = createMatch('2025-01-01')
     const match2 = createMatch('2025-01-02')
