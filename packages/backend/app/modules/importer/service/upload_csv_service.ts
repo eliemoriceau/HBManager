@@ -6,6 +6,7 @@ import { CsvImportReport } from '#importer/domain/import_report'
 import { ImportReportRepository } from '#importer/secondary/ports/import_report_repository'
 import Match from '#match/domain/match'
 import { MatchRepository } from '#match/secondary/ports/match_repository'
+import logger from '@adonisjs/core/services/logger'
 
 function parseDate(value: string): Date {
   const trimmed = value.trim()
@@ -39,7 +40,9 @@ export class UploadCsvService extends UploadCsvUseCase {
   }
 
   async execute(file: MultipartFile): Promise<CsvImportReport> {
-    if (!file || !file.isMultipartFile) {
+    logger.info('Importation CSV %o, ', { file }, file.isMultipartFile)
+
+    if (!file) {
       throw new Error('Fichier manquant')
     }
     if (file.extname !== 'csv') {
