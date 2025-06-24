@@ -2,6 +2,7 @@ import type { ApplicationService } from '@adonisjs/core/types'
 import { authProviderMap } from '#auth/index'
 import { matchProviderMap } from '#match/index'
 import { importerProviderMap } from '#importer/index'
+import { teamProviderMap } from '#team/index'
 
 export default class AppProvider {
   constructor(protected app: ApplicationService) {}
@@ -15,7 +16,7 @@ export default class AppProvider {
    * The container bindings have booted
    */
   async boot() {
-    const sources = [matchProviderMap, authProviderMap, importerProviderMap]
+    const sources = [matchProviderMap, authProviderMap, importerProviderMap, teamProviderMap]
     sources.forEach((map) => {
       map.forEach(([useCase, service]) => {
         this.app.container.bind(useCase, () => {

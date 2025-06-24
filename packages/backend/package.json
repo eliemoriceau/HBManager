@@ -34,7 +34,8 @@
     "#shared/*": "./app/shared/*.js",
     "#auth/*": "./app/auth/*.js",
     "#match/*": "./app/modules/match/*.js",
-    "#importer/*": "./app/modules/importer/*.js"
+    "#importer/*": "./app/modules/importer/*.js",
+    "#team/*": "./app/modules/team/*.js"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^7.8.2",
