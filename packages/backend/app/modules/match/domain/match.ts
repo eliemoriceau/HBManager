@@ -2,15 +2,16 @@ import { Entity } from '#shared/domaine/entity'
 import { Identifier } from '#shared/domaine/identifier'
 import InvalidMatchException from '#match/exceptions/invalid_match_exception'
 import InvalidMatchStateException from '#match/exceptions/invalid_match_state_exception'
-import { StatutMatch, allStatutMatch, allowedTransitions } from '#match/domain/statut_match'
+import { allowedTransitions, allStatutMatch, StatutMatch } from '#match/domain/statut_match'
 
 interface Properties {
   id: Identifier
+  codeRenc: string
   date: Date
   heure: string
-  equipeDomicileId: Identifier
-  equipeExterieurId: Identifier
-  officiels: Identifier[]
+  equipeDomicileId: string
+  equipeExterieurId: string
+  officiels: string[]
   statut: StatutMatch
   motifAnnulation?: string
   motifReport?: string
@@ -31,8 +32,10 @@ export default class Match extends Entity<Properties> {
     equipeExterieurId,
     officiels,
     statut,
+    codeRenc,
   }: {
     id?: string
+    codeRenc: string
     date: Date
     heure: string
     equipeDomicileId: string
@@ -60,10 +63,11 @@ export default class Match extends Entity<Properties> {
       id: id ? Identifier.fromString(id) : Identifier.generate(),
       date,
       heure,
-      equipeDomicileId: Identifier.fromString(equipeDomicileId),
-      equipeExterieurId: Identifier.fromString(equipeExterieurId),
-      officiels: (officiels ?? []).map((o) => Identifier.fromString(o)),
+      equipeDomicileId: equipeDomicileId,
+      equipeExterieurId: equipeExterieurId,
+      officiels: (officiels ?? []).map((o) => o),
       statut: statut ?? StatutMatch.A_VENIR,
+      codeRenc,
     })
   }
 

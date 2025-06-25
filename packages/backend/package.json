@@ -67,6 +67,7 @@
     "@adonisjs/cors": "^2.2.1",
     "@adonisjs/lucid": "^21.6.1",
     "@vinejs/vine": "^3.0.1",
+    "csv-parse": "^5.6.0",
     "jsonwebtoken": "^9.0.2",
     "luxon": "^3.6.1",
     "pg": "^8.16.0",
