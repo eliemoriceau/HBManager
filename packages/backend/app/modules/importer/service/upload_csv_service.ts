@@ -65,12 +65,6 @@ export class UploadCsvService extends UploadCsvUseCase {
         throw new Error('Encodage invalide : UTF-8 requis')
       }
 
-<<<<<<< codex/ajouter-statistiques-sur-l-upload-de-csv
-      const existingMatches = await this.matchRepository.findAll()
-      const existingCodes = new Set(existingMatches.map((m) => m.codeRenc))
-
-      const records = parse(buffer.toString('utf8'), {
-=======
       const content = buffer.toString('utf8')
 
       const [headerLine] = content.split(/\r?\n/)
@@ -80,9 +74,10 @@ export class UploadCsvService extends UploadCsvUseCase {
       if (missing.length > 0) {
         throw new Error('Entêtes manquants')
       }
+      const existingMatches = await this.matchRepository.findAll()
+      const existingCodes = new Set(existingMatches.map((m) => m.codeRenc))
 
       const records = parse(content, {
->>>>>>> main
         columns: true,
         skip_empty_lines: true,
         delimiter: ';',
