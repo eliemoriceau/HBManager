@@ -32,6 +32,8 @@ test.group('UploadCsvController', (group) => {
     // assert.include(report, ['totalLines', 'importedCount', 'ignored'])
     assert.equal(report.totalLines, 1)
     assert.equal(report.importedCount, 1)
+    assert.equal(report.addedCount, 1)
+    assert.equal(report.updatedCount, 0)
   })
 
   test('rejects file larger than 5MB', async ({ client }) => {
@@ -94,6 +96,10 @@ test.group('UploadCsvController', (group) => {
     response.assertStatus(201)
     const matches = await MatchModel.all()
     assert.lengthOf(matches, 1)
+    const report = response.body().report
+    assert.equal(report.importedCount, 1)
+    assert.equal(report.addedCount, 0)
+    assert.equal(report.updatedCount, 1)
   })
 
   test('reports invalid line', async ({ client, assert }) => {
@@ -112,6 +118,8 @@ test.group('UploadCsvController', (group) => {
     const report = response.body().report
     assert.equal(report.totalLines, 2)
     assert.equal(report.importedCount, 1)
+    assert.equal(report.addedCount, 1)
+    assert.equal(report.updatedCount, 0)
     assert.lengthOf(report.ignored, 1)
     assert.equal(report.ignored[0].lineNumber, 3)
 

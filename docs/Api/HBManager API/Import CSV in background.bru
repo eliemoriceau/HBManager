@@ -1,0 +1,15 @@
+meta {
+  name: Import CSV in background
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:3333/api/import/csv
+  body: multipartForm
+  auth: none
+}
+
+body:multipart-form {
+  file: @file(/Users/elie/Dev/hand/HBManager/packages/backend/tmp/2024-04-07_Export_GH-competition.csv)
+}

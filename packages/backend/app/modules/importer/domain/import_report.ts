@@ -7,5 +7,7 @@ export interface IgnoredLine {
 export interface CsvImportReport {
   totalLines: number
   importedCount: number
+  addedCount: number
+  updatedCount: number
   ignored: IgnoredLine[]
 }
