@@ -21,7 +21,7 @@ test.group('UploadCsvController', (group) => {
         contentType: 'text/csv',
       })
       .send()
-    response.assertStatus(202)
+    response.assertStatus(201)
     await new Promise((r) => setTimeout(r, 10))
 
     response.assertStatus(201)
@@ -57,7 +57,7 @@ test.group('UploadCsvController', (group) => {
         contentType: 'text/csv',
       })
       .send()
-    response.assertStatus(202)
+    response.assertBody({ queued: true })
   })
 
   test('rejects missing headers', async ({ client }) => {
@@ -69,7 +69,7 @@ test.group('UploadCsvController', (group) => {
         contentType: 'text/csv',
       })
       .send()
-    response.assertStatus(202)
+    response.assertBody({ queued: true })
   })
 
   test('does not duplicate existing match', async ({ client, assert }) => {
@@ -92,7 +92,7 @@ test.group('UploadCsvController', (group) => {
       })
       .send()
 
-    response.assertStatus(202)
+    response.assertBody({ queued: true })
     await new Promise((r) => setTimeout(r, 10))
     const matches = await MatchModel.all()
     assert.lengthOf(matches, 1)
@@ -108,7 +108,7 @@ test.group('UploadCsvController', (group) => {
       })
       .send()
 
-    response.assertStatus(202)
+    response.assertBody({ queued: true })
 
     // Vérification du rapport dans la réponse
     const report = response.body().report
