@@ -1,10 +1,7 @@
-export class InvalidArgumentException implements Error {
-  stack: string
-  message: string
-  name: string = 'InvalidArgumentException'
+export class InvalidArgumentException extends Error {
+  name = 'InvalidArgumentException'
 
-  constructor(msg: string, stack?: string) {
-    this.message = msg
-    this.stack = stack || ''
+  constructor(msg: string) {
+    super(msg)
   }
 }

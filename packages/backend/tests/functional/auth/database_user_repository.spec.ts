@@ -1,28 +1,9 @@
 import { test } from '@japa/runner'
-import db from '@adonisjs/lucid/services/db'
 import { DatabaseUserRepository } from '#auth/secondary/adapters/database_user_repository'
 import User from '#auth/domain/user'
 import { Role } from '#auth/domain/role'
 
-test.group('DatabaseUserRepository', (group) => {
-  group.setup(async () => {
-    await db.connection().schema.createTable('users', (table) => {
-      table.uuid('id').primary()
-      table.string('email').notNullable().unique()
-      table.string('password').notNullable()
-      table.text('roles').notNullable()
-    })
-  })
-
-  group.each.teardown(async () => {
-    await db.connection().truncate('users')
-  })
-
-  group.teardown(async () => {
-    await db.connection().schema.dropTable('users')
-    await db.manager.closeAll()
-  })
-
+test.group('DatabaseUserRepository', () => {
   test('save and findByEmail', async ({ assert }) => {
     const repo = new DatabaseUserRepository()
     const user = User.create({ email: 'a@b.com', password: 'pass', roles: [Role.GUEST] })

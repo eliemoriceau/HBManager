@@ -1,11 +1,150 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
   title: HBManager API
+  description: API for managing handball matches and users.
   version: 1.0.0
+servers:
+  - url: http://localhost:3333
 paths:
+  /api/auth/register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        '201':
+          description: User created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  email:
+                    type: string
+                    format: email
+                  roles:
+                    type: array
+                    items:
+                      type: string
+                      enum: [SECRETAIRE, ENTRAINEUR, ARBITRE, COMMUNICATION, ADMIN, GUEST]
+        '400':
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /api/auth/login:
+    post:
+      summary: Authenticate a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: Authentication success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  roles:
+                    type: array
+                    items:
+                      type: string
+                      enum: [SECRETAIRE, ENTRAINEUR, ARBITRE, COMMUNICATION, ADMIN, GUEST]
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /api/matches:
+    get:
+      summary: List matches
+      parameters:
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: equipeId
+          schema:
+            type: string
+        - in: query
+          name: officielId
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of matches
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    date:
+                      type: string
+                      format: date-time
+                    heure:
+                      type: string
+                    equipeDomicileId:
+                      type: string
+                    equipeExterieurId:
+                      type: string
+                    officiels:
+                      type: array
+                      items:
+                        type: string
+                    statut:
+                      type: string
   /api/import/csv:
     post:
-      summary: Import CSV in background
+      summary: Import matches from CSV
       requestBody:
         required: true
         content:
@@ -16,6 +155,44 @@ paths:
                 file:
                   type: string
                   format: binary
+              required:
+                - file
       responses:
-        '202':
-          description: Job queued
+        '201':
+          description: Import result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uploaded:
+                    type: boolean
+                  report:
+                    type: object
+                    properties:
+                      totalLines:
+                        type: integer
+                      importedCount:
+                        type: integer
+                      ignored:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            lineNumber:
+                              type: integer
+                            content:
+                              type: string
+                            reason:
+                              type: string
+        '400':
+          description: Import error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  template:
+                    type: string

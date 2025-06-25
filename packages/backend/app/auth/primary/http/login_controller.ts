@@ -2,13 +2,14 @@ import { AuthenticationResult, LoginUserUseCase } from '#auth/use_case/login_use
 import type { HttpContext } from '@adonisjs/core/http'
 import logger from '@adonisjs/core/services/logger'
 import { inject } from '@adonisjs/core'
+import { loginValidator } from '#auth/primary/http/login_validator'
 
 @inject()
 export default class LoginController {
   constructor(private readonly useCase: LoginUserUseCase) {}
 
   async handle({ request, response }: HttpContext) {
-    const { email, password } = request.only(['email', 'password'])
+    const { email, password } = await loginValidator.validate(request.body())
     try {
       const user: AuthenticationResult = await this.useCase.execute(email, password)
       logger.info('User logged in', { user })

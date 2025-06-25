@@ -36,6 +36,7 @@
     "#auth/*": "./app/auth/*.js",
     "#match/*": "./app/modules/match/*.js",
     "#importer/*": "./app/modules/importer/*.js",
+    "#team/*": "./app/modules/team/*.js",
     "#queue/*": "./app/queue/*.js"
   },
   "devDependencies": {

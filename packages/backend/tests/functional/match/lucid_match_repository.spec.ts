@@ -1,9 +1,10 @@
 import { test } from '@japa/runner'
-import db from '@adonisjs/lucid/services/db'
 import { LucidMatchRepository } from '#match/secondary/adapters/lucid_match_repository'
 import { MatchModel } from '#match/secondary/infrastructure/models/match'
 import Match from '#match/domain/match'
+import { Identifier } from '#shared/domaine/identifier'
 import { DateTime } from 'luxon'
+import testUtils from '@adonisjs/core/services/test_utils'
 
 const equipeHome = '11111111-1111-1111-1111-111111111111'
 const equipeAway = '22222222-2222-2222-2222-222222222222'
@@ -13,7 +14,7 @@ function createMatch(
   date: string,
   heure = '12:00',
   officials: string[] = [official],
-  id = Math.random().toString(36).slice(2)
+  id = Identifier.generate().toString()
 ) {
   return Match.create({
     id,
@@ -26,31 +27,7 @@ function createMatch(
 }
 
 test.group('LucidMatchRepository', (group) => {
-  group.setup(async () => {
-    await db.connection().schema.createTable('matches', (table) => {
-      table.uuid('id').primary()
-      table.date('date').notNullable()
-      table.string('heure').notNullable()
-      table.uuid('equipe_domicile_id').notNullable()
-      table.uuid('equipe_exterieur_id').notNullable()
-      table.text('officiels').notNullable()
-      table.string('statut').notNullable()
-      table.string('motif_annulation')
-      table.string('motif_report')
-      table.integer('score_domicile')
-      table.integer('score_exterieur')
-    })
-  })
-
-  group.each.teardown(async () => {
-    await db.connection().truncate('matches')
-  })
-
-  group.teardown(async () => {
-    await db.connection().schema.dropTable('matches')
-    await db.manager.closeAll()
-  })
-
+  group.each.setup(() => testUtils.db().truncate())
   test('findAll returns all matches', async ({ assert }) => {
     const match1 = createMatch('2025-01-01')
     const match2 = createMatch('2025-01-02')
@@ -128,24 +105,26 @@ test.group('LucidMatchRepository', (group) => {
 
   test('upsert creates or updates a match', async ({ assert }) => {
     const repo = new LucidMatchRepository()
-    const match = createMatch('2025-05-05', '12:00', [official], 'code1')
+    const matchId = Identifier.generate().toString()
+    const match = createMatch('2025-05-05', '12:00', [official], matchId)
     await repo.upsert(match)
 
     let models = await MatchModel.all()
     assert.lengthOf(models, 1)
 
+    const newOfficial = Identifier.generate().toString()
     const updated = Match.create({
       id: match.id.toString(),
       date: match.date,
       heure: match.heure,
       equipeDomicileId: match.equipeDomicileId.toString(),
       equipeExterieurId: match.equipeExterieurId.toString(),
-      officiels: ['new'],
+      officiels: [newOfficial],
     })
     await repo.upsert(updated)
 
     models = await MatchModel.all()
     assert.lengthOf(models, 1)
-    assert.deepEqual(models[0].officiels, ['new'])
+    assert.deepEqual(models[0].officiels, [newOfficial])
   })
 })
