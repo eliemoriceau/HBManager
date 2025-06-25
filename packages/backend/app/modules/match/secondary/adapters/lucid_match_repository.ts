@@ -9,7 +9,7 @@ export class LucidMatchRepository implements MatchRepository {
   private toDomain(model: MatchModel): Match {
     return Match.create({
       id: model.id,
-      date: model.date.toJSDate(),
+      date: model.date,
       heure: model.heure,
       equipeDomicileId: model.equipeDomicileId,
       equipeExterieurId: model.equipeExterieurId,
@@ -62,7 +62,7 @@ export class LucidMatchRepository implements MatchRepository {
 
   async upsert(match: Match): Promise<void> {
     try {
-      const existing = await MatchModel.find(match.id.toString())
+      const existing = await MatchModel.query().where('code_renc', match.codeRenc).first()
 
       if (existing) {
         existing.officiels = match.officiels.map((o) => o.toString())
