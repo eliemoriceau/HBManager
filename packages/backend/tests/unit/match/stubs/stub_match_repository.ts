@@ -10,10 +10,10 @@ export class StubMatchRepository implements MatchRepository {
 
   async findByCriteria(criteria: MatchSearchCriteria): Promise<Match[]> {
     return this.matches.filter((m) => {
-      if (criteria.startDate && m.date.getTime() < criteria.startDate.getTime()) {
+      if (criteria.startDate && m.date.toMillis() < criteria.startDate.getTime()) {
         return false
       }
-      if (criteria.endDate && m.date.getTime() > criteria.endDate.getTime()) {
+      if (criteria.endDate && m.date.toMillis() > criteria.endDate.getTime()) {
         return false
       }
       if (
@@ -30,7 +30,7 @@ export class StubMatchRepository implements MatchRepository {
   }
 
   async upsert(match: Match): Promise<void> {
-    const index = this.matches.findIndex((m) => m.id.toString() === match.id.toString())
+    const index = this.matches.findIndex((m) => m.codeRenc === match.codeRenc)
     if (index >= 0) {
       this.matches[index] = match
     } else {

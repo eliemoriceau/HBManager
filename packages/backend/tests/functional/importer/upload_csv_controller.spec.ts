@@ -81,6 +81,7 @@ test.group('UploadCsvController', (group) => {
       equipeExterieurId: equipeAway,
       officiels: [],
       statut: StatutMatch.A_VENIR,
+      codeRenc: id1,
     })
 
     const csv = `code renc;le;horaire;club rec;club vis;nom salle\n${id1};2025-01-01;12:00;${equipeHome};${equipeAway};Gym`

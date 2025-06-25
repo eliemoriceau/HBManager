@@ -13,7 +13,7 @@ export default class GetMatchesController {
 
     const body = matches.map((m) => ({
       id: m.id.toString(),
-      date: m.date.toISOString(),
+      date: m.date.toISO(),
       heure: m.heure,
       equipeDomicileId: m.equipeDomicileId.toString(),
       equipeExterieurId: m.equipeExterieurId.toString(),
