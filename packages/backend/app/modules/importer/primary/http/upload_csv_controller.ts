@@ -3,7 +3,6 @@ import { inject } from '@adonisjs/core'
 import { DatabaseConnectionException } from '#exceptions/database_connection_exception'
 import queue from '@rlanz/bull-queue/services/main'
 import ImportCsvJob from '../../../../jobs/import_csv_job.js'
-import logger from '@adonisjs/core/services/logger'
 
 @inject()
 export default class UploadCsvController {
@@ -14,7 +13,6 @@ export default class UploadCsvController {
     }
 
     try {
-      logger.info('Importing CSV file controller %o', { file })
       await queue.dispatch(ImportCsvJob, { file }, { queueName: 'importCSV' })
       return response.accepted({ queued: true })
     } catch (error) {

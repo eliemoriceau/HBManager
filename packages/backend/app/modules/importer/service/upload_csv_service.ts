@@ -7,6 +7,9 @@ import { ImportReportRepository } from '#importer/secondary/ports/import_report_
 import Match from '#match/domain/match'
 import { MatchRepository } from '#match/secondary/ports/match_repository'
 import logger from '@adonisjs/core/services/logger'
+import { parse } from 'csv-parse/sync'
+import app from '@adonisjs/core/services/app'
+import { StatutMatch } from '#match/domain/statut_match'
 
 function parseDate(value: string): Date {
   const trimmed = value.trim()
@@ -48,7 +51,7 @@ export class UploadCsvService extends UploadCsvUseCase {
     if (file.extname !== 'csv') {
       throw new Error('Format de fichier invalide')
     }
-    if (!file.tmpPath) {
+    if (!file.clientName) {
       throw new Error("Le fichier n'a pas été traité")
     }
 
@@ -56,21 +59,19 @@ export class UploadCsvService extends UploadCsvUseCase {
       throw new Error('Fichier trop volumineux')
     }
 
-    const buffer = await fs.readFile(file.tmpPath)
+    const buffer = await fs.readFile(app.tmpPath() + '/' + file.clientName)
 
     const utf8Check = Buffer.from(buffer.toString('utf8'), 'utf8')
     if (!buffer.equals(utf8Check)) {
       throw new Error('Encodage invalide : UTF-8 requis')
     }
 
-    const [headerLine] = buffer.toString('utf8').split(/\r?\n/)
-    const headers = headerLine.split(';').map((h) => h.trim().toLowerCase())
-
-    const requiredHeaders = ['code renc', 'le', 'horaire', 'club rec', 'club vis', 'nom salle']
-    const missing = requiredHeaders.filter((h) => !headers.includes(h))
-    if (missing.length) {
-      throw new Error(`Entêtes manquantes: ${missing.join(', ')}`)
-    }
+    const records = parse(buffer.toString('utf8'), {
+      columns: true,
+      skip_empty_lines: true,
+      delimiter: ';',
+      autoParse: true,
+    })
 
     const lines = buffer
       .toString('utf8')
@@ -84,17 +85,18 @@ export class UploadCsvService extends UploadCsvUseCase {
       ignored: [],
     }
 
-    for (const [index, line] of lines.entries()) {
+    for (const [index, line] of records.entries()) {
       try {
-        const [codeRenc, le, horaire, clubRec, clubVis] = line.split(';')
-        const date = parseDate(le)
-        const heure = parseTime(horaire)
+        const date = parseDate(line['le'])
+        const heure = parseTime(line['horaire'])
         const match = Match.create({
-          id: codeRenc.trim(),
+          id: line['code renc'].trim(),
           date,
           heure,
-          equipeDomicileId: clubRec.trim(),
-          equipeExterieurId: clubVis.trim(),
+          equipeDomicileId: line['club rec'].trim(),
+          equipeExterieurId: line['club vis'].trim(),
+          officiels: [line['arb1 designe'], line['arb2 designe']],
+          statut: StatutMatch.A_VENIR,
         })
         await this.matchRepository.upsert(match)
         report.importedCount++
