@@ -1,4 +1,4 @@
-import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { BaseModel, column, dateTimeColumn } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 import { StatutMatch } from '#match/domain/statut_match'
 
@@ -40,4 +40,13 @@ export class MatchModel extends BaseModel {
 
   @column({ columnName: 'score_exterieur' })
   declare scoreExterieur?: number | null
+
+  @column({ columnName: 'code_renc' })
+  declare codeRenc: string
+
+  @dateTimeColumn({ autoCreate: true })
+  declare createdAt: DateTime
+
+  @dateTimeColumn({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
 }

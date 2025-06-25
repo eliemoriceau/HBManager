@@ -2,8 +2,8 @@ import Match from '#match/domain/match'
 import { StatutMatch } from '#match/domain/statut_match'
 import { MatchRepository, MatchSearchCriteria } from '#match/secondary/ports/match_repository'
 import { MatchModel } from '#match/secondary/infrastructure/models/match'
-import { DateTime } from 'luxon'
 import { DatabaseConnectionException } from '#exceptions/database_connection_exception'
+import logger from '@adonisjs/core/services/logger'
 
 export class LucidMatchRepository implements MatchRepository {
   private toDomain(model: MatchModel): Match {
@@ -15,6 +15,7 @@ export class LucidMatchRepository implements MatchRepository {
       equipeExterieurId: model.equipeExterieurId,
       officiels: model.officiels,
       statut: model.statut as StatutMatch,
+      codeRenc: model.codeRenc,
     })
   }
 
@@ -41,8 +42,8 @@ export class LucidMatchRepository implements MatchRepository {
     if (criteria.equipeId) {
       query.where((builder) => {
         builder
-          .where('equipe_domicile_id', criteria.equipeId)
-          .orWhere('equipe_exterieur_id', criteria.equipeId)
+          .where('equipe_domicile_id', criteria.equipeId!)
+          .orWhere('equipe_exterieur_id', criteria.equipeId!)
       })
     }
     if (criteria.officielId) {
@@ -70,15 +71,18 @@ export class LucidMatchRepository implements MatchRepository {
         return
       }
 
-      await MatchModel.create({
+      const values = {
         id: match.id.toString(),
-        date: DateTime.fromJSDate(match.date),
+        date: match.date,
         heure: match.heure,
         equipeDomicileId: match.equipeDomicileId.toString(),
         equipeExterieurId: match.equipeExterieurId.toString(),
         officiels: match.officiels.map((o) => o.toString()),
         statut: match.statut,
-      })
+        codeRenc: match.codeRenc,
+      }
+      logger.debug(values)
+      await MatchModel.create(values)
     } catch (error) {
       if (error && ['ECONNREFUSED', 'ENOTFOUND'].includes((error as any).code)) {
         throw new DatabaseConnectionException()

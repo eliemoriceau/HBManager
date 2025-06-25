@@ -3,11 +3,12 @@ import { Identifier } from '#shared/domaine/identifier'
 import InvalidMatchException from '#match/exceptions/invalid_match_exception'
 import InvalidMatchStateException from '#match/exceptions/invalid_match_state_exception'
 import { allowedTransitions, allStatutMatch, StatutMatch } from '#match/domain/statut_match'
+import { DateTime } from 'luxon'
 
 interface Properties {
   id: Identifier
   codeRenc: string
-  date: Date
+  date: DateTime
   heure: string
   equipeDomicileId: string
   equipeExterieurId: string
@@ -36,14 +37,14 @@ export default class Match extends Entity<Properties> {
   }: {
     id?: string
     codeRenc: string
-    date: Date
+    date: DateTime
     heure: string
     equipeDomicileId: string
     equipeExterieurId: string
     officiels?: string[]
     statut?: StatutMatch
   }): Match {
-    if (!date || Number.isNaN(date.getTime())) {
+    if (!date || !date.isValid) {
       throw new InvalidMatchException('Date du match invalide')
     }
 
@@ -94,7 +95,9 @@ export default class Match extends Entity<Properties> {
   get statut() {
     return this.props.statut
   }
-
+  get codeRenc() {
+    return this.props.codeRenc
+  }
   changerStatut(nouveauStatut: StatutMatch) {
     if (!allStatutMatch.has(nouveauStatut)) {
       throw new InvalidMatchStateException(`Statut inconnu : ${nouveauStatut}`)
@@ -116,26 +119,19 @@ export default class Match extends Entity<Properties> {
     }
 
     const uniques = Array.from(new Set(officiels))
-    this.props.officiels = uniques.map((o) => Identifier.fromString(o))
+    this.props.officiels = uniques.map((o) => o)
   }
 
-  private validateDateHeure(date: Date, heure: string) {
-    if (!date || Number.isNaN(date.getTime())) {
+  private validateDateHeure(date: DateTime, heure: string) {
+    if (!date || !date.isValid) {
       throw new InvalidMatchStateException('Date du match invalide')
     }
     if (!heure || !/^([01]?\d|2[0-3]):[0-5]\d$/.test(heure)) {
       throw new InvalidMatchStateException('Heure du match invalide')
     }
-
-    const [h, m] = heure.split(':').map((v) => Number(v))
-    const datetime = new Date(date)
-    datetime.setHours(h, m, 0, 0)
-    if (datetime.getTime() <= Date.now()) {
-      throw new InvalidMatchStateException('La date doit être future')
-    }
   }
 
-  modifierHoraire(nouvelleDate: Date, nouvelleHeure: string) {
+  modifierHoraire(nouvelleDate: DateTime, nouvelleHeure: string) {
     this.validateDateHeure(nouvelleDate, nouvelleHeure)
     this.props.date = nouvelleDate
     this.props.heure = nouvelleHeure
@@ -153,7 +149,7 @@ export default class Match extends Entity<Properties> {
     this.changerStatut(StatutMatch.ANNULE)
   }
 
-  reporterMatch(nouvelleDate: Date, nouvelleHeure: string, motif: string) {
+  reporterMatch(nouvelleDate: DateTime, nouvelleHeure: string, motif: string) {
     if (!motif || motif.trim().length === 0) {
       throw new InvalidMatchStateException('Le motif est requis pour reporter')
     }
@@ -172,9 +168,9 @@ export default class Match extends Entity<Properties> {
     }
 
     const [h, m] = this.props.heure.split(':').map((v) => Number(v))
-    const datetime = new Date(this.props.date)
-    datetime.setHours(h, m, 0, 0)
-    if (datetime.getTime() > Date.now()) {
+    const datetime = DateTime.fromJSDate(this.props.date.toJSDate())
+
+    if (datetime.plus({ hours: h, minute: m }) > DateTime.now()) {
       throw new InvalidMatchStateException("L'heure de début du match n'est pas encore atteinte")
     }
 

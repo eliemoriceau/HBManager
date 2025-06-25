@@ -8,15 +8,16 @@ import Match from '#match/domain/match'
 import { MatchRepository } from '#match/secondary/ports/match_repository'
 import { parse } from 'csv-parse/sync'
 import { StatutMatch } from '#match/domain/statut_match'
+import logger from '@adonisjs/core/services/logger'
+import { DateTime } from 'luxon'
 
-function parseDate(value: string): Date {
+function parseDate(value: string): DateTime {
   const trimmed = value.trim()
   if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
-    return new Date(trimmed)
+    return DateTime.fromFormat(trimmed, 'yyyy-MM-dd')
   }
   if (/^\d{2}\/\d{2}\/\d{4}$/.test(trimmed)) {
-    const [d, m, y] = trimmed.split('/')
-    return new Date(`${y}-${m}-${d}`)
+    return DateTime.fromFormat(trimmed, 'dd/MM/yyyy')
   }
   throw new Error(`Format de date invalide: ${value}`)
 }
@@ -96,6 +97,7 @@ export class UploadCsvService extends UploadCsvUseCase {
             officiels: [line['arb1 designe'], line['arb2 designe']],
             statut: StatutMatch.A_VENIR,
           })
+          logger.debug(match)
           await this.matchRepository.upsert(match)
           report.importedCount++
         } catch (error) {

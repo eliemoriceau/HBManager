@@ -15,6 +15,7 @@ export class JwtTokenProvider extends TokenProvider {
   }
 
   generate(payload: TokenPayload): string {
+    // @ts-ignore
     return jwt.sign(payload, this.secret, { expiresIn: this.expiresIn })
   }
 
