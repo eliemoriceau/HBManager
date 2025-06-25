@@ -65,15 +65,24 @@ export class UploadCsvService extends UploadCsvUseCase {
         throw new Error('Encodage invalide : UTF-8 requis')
       }
 
-      const records = parse(buffer.toString('utf8'), {
+      const content = buffer.toString('utf8')
+
+      const [headerLine] = content.split(/\r?\n/)
+      const headers = headerLine.split(';').map((h) => h.trim().toLowerCase())
+      const required = ['code renc', 'le', 'horaire', 'club rec', 'club vis', 'nom salle']
+      const missing = required.filter((h) => !headers.includes(h))
+      if (missing.length > 0) {
+        throw new Error('Entêtes manquants')
+      }
+
+      const records = parse(content, {
         columns: true,
         skip_empty_lines: true,
         delimiter: ';',
-        autoParse: true,
+        cast: (value) => value,
       })
 
-      const lines = buffer
-        .toString('utf8')
+      const lines = content
         .split(/\r?\n/)
         .slice(1)
         .filter((l) => l.trim().length > 0)
@@ -94,7 +103,7 @@ export class UploadCsvService extends UploadCsvUseCase {
             heure,
             equipeDomicileId: line['club rec'].trim(),
             equipeExterieurId: line['club vis'].trim(),
-            officiels: [line['arb1 designe'], line['arb2 designe']],
+            officiels: [line['arb1 designe'], line['arb2 designe']].filter(Boolean),
             statut: StatutMatch.A_VENIR,
           })
           logger.debug(match)

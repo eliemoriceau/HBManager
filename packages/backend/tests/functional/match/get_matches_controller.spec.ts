@@ -10,7 +10,8 @@ const official = '33333333-3333-4333-8333-333333333333'
 
 function createMatch(date: string, heure = '12:00', officials: string[] = [official]) {
   return Match.create({
-    date: new Date(date),
+    codeRenc: 'CR1',
+    date: DateTime.fromISO(date),
     heure,
     equipeDomicileId: equipeHome,
     equipeExterieurId: equipeAway,
@@ -25,21 +26,23 @@ test.group('GetMatchesController', (group) => {
     const match2 = createMatch('2025-01-02')
     await MatchModel.create({
       id: match1.id.toString(),
-      date: DateTime.fromJSDate(match1.date),
+      date: match1.date,
       heure: match1.heure,
       equipeDomicileId: match1.equipeDomicileId.toString(),
       equipeExterieurId: match1.equipeExterieurId.toString(),
       officiels: match1.officiels.map((o) => o.toString()),
       statut: match1.statut,
+      codeRenc: match1.codeRenc,
     })
     await MatchModel.create({
       id: match2.id.toString(),
-      date: DateTime.fromJSDate(match2.date),
+      date: match2.date,
       heure: match2.heure,
       equipeDomicileId: match2.equipeDomicileId.toString(),
       equipeExterieurId: match2.equipeExterieurId.toString(),
       officiels: match2.officiels.map((o) => o.toString()),
       statut: match2.statut,
+      codeRenc: match2.codeRenc,
     })
 
     const response = await client.get('/api/matches').send()
@@ -53,12 +56,13 @@ test.group('GetMatchesController', (group) => {
     for (const m of [match1, match2]) {
       await MatchModel.create({
         id: m.id.toString(),
-        date: DateTime.fromJSDate(m.date),
+        date: m.date,
         heure: m.heure,
         equipeDomicileId: m.equipeDomicileId.toString(),
         equipeExterieurId: m.equipeExterieurId.toString(),
         officiels: m.officiels.map((o) => o.toString()),
         statut: m.statut,
+        codeRenc: m.codeRenc,
       })
     }
 
