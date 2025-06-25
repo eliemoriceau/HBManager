@@ -9,6 +9,7 @@ import Team from '#team/domain/team'
 import { FederalCode } from '#team/domain/federal_code'
 import InvalidTeamException from '#team/exceptions/invalid_team_exception'
 import Match from '#match/domain/match'
+import { DateTime } from 'luxon'
 
 const equipeId = '11111111-1111-1111-1111-111111111111'
 const otherId = '22222222-2222-2222-2222-222222222222'
@@ -46,6 +47,7 @@ test.group('Team use cases', (group) => {
   test('update team changes name', async ({ assert }) => {
     const team = createTeam('A', 'C1', equipeId)
     const repo = new StubTeamRepository([team])
+    FederalCode.reset()
     const useCase = new UpdateTeam(repo)
 
     const updated = await useCase.execute(equipeId, { nom: 'B', codeFederal: 'C1' })
@@ -71,7 +73,7 @@ test.group('Team use cases', (group) => {
     const team = createTeam('A', 'C1', equipeId)
     const repo = new StubTeamRepository([team])
     const match = Match.create({
-      date: new Date('2025-01-01'),
+      date: DateTime.fromISO('2025-01-01'),
       heure: '12:00',
       equipeDomicileId: equipeId,
       equipeExterieurId: otherId,
