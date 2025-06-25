@@ -1,12 +1,11 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
-import { UploadCsvUseCase } from '#importer/use_case/upload_csv_use_case'
 import { DatabaseConnectionException } from '#exceptions/database_connection_exception'
+import queue from '@rlanz/bull-queue/services/main'
+import ImportCsvJob from '../../../../jobs/import_csv_job.js'
 
 @inject()
 export default class UploadCsvController {
-  constructor(private readonly useCase: UploadCsvUseCase) {}
-
   async handle({ request, response }: HttpContext) {
     const file = request.file('file')
     if (!file) {
@@ -14,8 +13,8 @@ export default class UploadCsvController {
     }
 
     try {
-      const report = await this.useCase.execute(file)
-      return response.created({ uploaded: true, report })
+      await queue.dispatch(ImportCsvJob, { file }, { queueName: 'importCSV' })
+      return response.accepted({ queued: true })
     } catch (error) {
       if (!(error instanceof DatabaseConnectionException)) {
         return response.badRequest({

@@ -11,6 +11,8 @@
 */
 
 process.env.NODE_ENV = 'test'
+process.env.REDIS_HOST = '127.0.0.1'
+process.env.REDIS_PORT = '6379'
 
 import 'reflect-metadata'
 import { Ignitor, prettyPrintError } from '@adonisjs/core'

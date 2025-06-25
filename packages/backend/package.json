@@ -12,7 +12,8 @@
     "coverage": "APP_KEY=abcdefghijklmnopabcdefghijklmnop JWT_SECRET=secret JWT_EXPIRES_IN=1h c8 --all -n app --reporters=lcov node ace test",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "worker": "node ace queue:listen --queue=importCSV"
   },
   "imports": {
     "#controllers/*": "./app/controllers/*.js",
@@ -35,7 +36,8 @@
     "#auth/*": "./app/auth/*.js",
     "#match/*": "./app/modules/match/*.js",
     "#importer/*": "./app/modules/importer/*.js",
-    "#team/*": "./app/modules/team/*.js"
+    "#team/*": "./app/modules/team/*.js",
+    "#queue/*": "./app/queue/*.js"
   },
   "devDependencies": {
     "@adonisjs/assembler": "^7.8.2",
@@ -66,7 +68,9 @@
     "@adonisjs/core": "^6.18.0",
     "@adonisjs/cors": "^2.2.1",
     "@adonisjs/lucid": "^21.6.1",
+    "@rlanz/bull-queue": "^3.1.0",
     "@vinejs/vine": "^3.0.1",
+    "csv-parse": "^5.6.0",
     "jsonwebtoken": "^9.0.2",
     "luxon": "^3.6.1",
     "pg": "^8.16.0",
