@@ -3,7 +3,6 @@ import { StatutMatch } from '#match/domain/statut_match'
 import { MatchRepository, MatchSearchCriteria } from '#match/secondary/ports/match_repository'
 import { MatchModel } from '#match/secondary/infrastructure/models/match'
 import { DatabaseConnectionException } from '#exceptions/database_connection_exception'
-import logger from '@adonisjs/core/services/logger'
 
 export class LucidMatchRepository implements MatchRepository {
   private toDomain(model: MatchModel): Match {
@@ -81,7 +80,6 @@ export class LucidMatchRepository implements MatchRepository {
         statut: match.statut,
         codeRenc: match.codeRenc,
       }
-      logger.debug(values)
       await MatchModel.create(values)
     } catch (error) {
       if (error && ['ECONNREFUSED', 'ENOTFOUND'].includes((error as any).code)) {
