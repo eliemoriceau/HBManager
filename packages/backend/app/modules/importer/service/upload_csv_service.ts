@@ -65,6 +65,9 @@ export class UploadCsvService extends UploadCsvUseCase {
         throw new Error('Encodage invalide : UTF-8 requis')
       }
 
+      const existingMatches = await this.matchRepository.findAll()
+      const existingCodes = new Set(existingMatches.map((m) => m.codeRenc))
+
       const records = parse(buffer.toString('utf8'), {
         columns: true,
         skip_empty_lines: true,
@@ -81,6 +84,8 @@ export class UploadCsvService extends UploadCsvUseCase {
       const report: CsvImportReport = {
         totalLines: lines.length,
         importedCount: 0,
+        addedCount: 0,
+        updatedCount: 0,
         ignored: [],
       }
 
@@ -98,8 +103,15 @@ export class UploadCsvService extends UploadCsvUseCase {
             statut: StatutMatch.A_VENIR,
           })
           logger.debug(match)
+          const isUpdate = existingCodes.has(match.codeRenc)
           await this.matchRepository.upsert(match)
           report.importedCount++
+          if (isUpdate) {
+            report.updatedCount++
+          } else {
+            report.addedCount++
+            existingCodes.add(match.codeRenc)
+          }
         } catch (error) {
           report.ignored.push({
             lineNumber: index + 2,
