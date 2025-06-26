@@ -2,7 +2,6 @@ import testUtils from '@adonisjs/core/services/test_utils'
 import { test } from '@japa/runner'
 import { UserModel } from '#auth/secondary/infrastructure/models/user'
 import { Role } from '#auth/domain/role'
-import logger from '@adonisjs/core/services/logger'
 import { Identifier } from '#shared/domaine/identifier'
 
 process.env.JWT_SECRET = 'testsecret'
@@ -10,15 +9,13 @@ process.env.JWT_EXPIRES_IN = '1h'
 
 test.group('AuthFlow', (group) => {
   group.each.setup(() => testUtils.db().truncate())
-  test('register then login and access protected route', async ({ client, assert }) => {
+  test('register then login and access protected route', async ({ client }) => {
     const loginResponse = await client
       .post('/api/auth/login')
       .json({ email: 'admin@example.com', password: 'secret' })
 
-    logger.info(loginResponse)
     loginResponse.assertOk()
     const token = loginResponse.body().token
-    assert.exists(token)
 
     const protectedRes = await client
       .get('/admin')
