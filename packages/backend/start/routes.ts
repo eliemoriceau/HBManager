@@ -14,6 +14,7 @@ import { middleware } from '#start/kernel'
 const loginController = () => import('#auth/primary/http/login_controller')
 const registerController = () => import('#auth/primary/http/register_controller')
 const getMatchesController = () => import('#match/primary/http/get_matches_controller')
+const getMatchController = () => import('#match/primary/http/get_match_controller')
 const uploadCsvController = () => import('#importer/primary/http/upload_csv_controller')
 
 router.post('/api/auth/register', [registerController])
@@ -33,5 +34,6 @@ router
   .use(middleware.auth(Role.ADMIN))
 
 router.get('/api/matches', [getMatchesController])
+router.get('/api/matches/:id', [getMatchController])
 
 router.post('/api/import/csv', [uploadCsvController])

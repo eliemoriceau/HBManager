@@ -59,6 +59,18 @@ export class LucidMatchRepository implements MatchRepository {
     }
   }
 
+  async findById(id: string): Promise<Match | null> {
+    try {
+      const model = await MatchModel.find(id)
+      return model ? this.toDomain(model) : null
+    } catch (error) {
+      if (error && ['ECONNREFUSED', 'ENOTFOUND'].includes((error as any).code)) {
+        throw new DatabaseConnectionException()
+      }
+      throw error
+    }
+  }
+
   async upsert(match: Match): Promise<void> {
     try {
       const existing = await MatchModel.query().where('code_renc', match.codeRenc).first()

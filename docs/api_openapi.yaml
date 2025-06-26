@@ -142,6 +142,60 @@ paths:
                         type: string
                     statut:
                       type: string
+  /api/matches/{id}:
+    get:
+      summary: Get match details
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Match details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  date:
+                    type: string
+                    format: date-time
+                  heure:
+                    type: string
+                  statut:
+                    type: string
+                  codeRenc:
+                    type: string
+                  officiels:
+                    type: array
+                    items:
+                      type: string
+                  equipeDomicile:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      nom:
+                        type: string
+                      codeFederal:
+                        type: string
+                      logo:
+                        type: string
+                  equipeExterieur:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      nom:
+                        type: string
+                      codeFederal:
+                        type: string
+                      logo:
+                        type: string
   /api/import/csv:
     post:
       summary: Import matches from CSV
