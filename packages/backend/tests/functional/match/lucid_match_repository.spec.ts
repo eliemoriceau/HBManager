@@ -108,6 +108,26 @@ test.group('LucidMatchRepository', (group) => {
     assert.equal(res[0].id.toString(), match1.id.toString())
   })
 
+  test('findById returns a single match', async ({ assert }) => {
+    const match = createMatch('2025-05-05')
+    await MatchModel.create({
+      id: match.id.toString(),
+      date: match.date,
+      heure: match.heure,
+      equipeDomicileId: match.equipeDomicileId.toString(),
+      equipeExterieurId: match.equipeExterieurId.toString(),
+      officiels: match.officiels.map((o) => o.toString()),
+      statut: match.statut,
+      codeRenc: match.codeRenc,
+    })
+
+    const repo = new LucidMatchRepository()
+    const found = await repo.findById(match.id.toString())
+
+    assert.isNotNull(found)
+    assert.equal(found?.id.toString(), match.id.toString())
+  })
+
   test('upsert creates or updates a match', async ({ assert }) => {
     const repo = new LucidMatchRepository()
     const matchId = Identifier.generate().toString()
