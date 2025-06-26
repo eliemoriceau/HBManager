@@ -15,6 +15,10 @@ const loginController = () => import('#auth/primary/http/login_controller')
 const registerController = () => import('#auth/primary/http/register_controller')
 const getMatchesController = () => import('#match/primary/http/get_matches_controller')
 const uploadCsvController = () => import('#importer/primary/http/upload_csv_controller')
+const getTeamsController = () => import('#team/primary/http/get_teams_controller')
+const createTeamController = () => import('#team/primary/http/create_team_controller')
+const updateTeamController = () => import('#team/primary/http/update_team_controller')
+const deleteTeamController = () => import('#team/primary/http/delete_team_controller')
 
 router.post('/api/auth/register', [registerController])
 
@@ -35,3 +39,8 @@ router
 router.get('/api/matches', [getMatchesController])
 
 router.post('/api/import/csv', [uploadCsvController])
+
+router.get('/api/equipes', [getTeamsController])
+router.post('/api/equipes', [createTeamController])
+router.put('/api/equipes/:id', [updateTeamController])
+router.delete('/api/equipes/:id', [deleteTeamController])
