@@ -7,12 +7,20 @@ import { UpdateTeam } from '#team/service/update_team'
 import { DeleteTeam } from '#team/service/delete_team'
 import { ListTeams } from '#team/service/list_teams'
 import { TeamRepository } from '#team/secondary/ports/team_repository'
+<<<<<<< codex/ajouter-sélection-de-2-équipes-au-match
 import { MemoryTeamRepository } from '#team/secondary/adapters/memory_team_repository'
+=======
+import { LucidTeamRepository } from '#team/secondary/adapters/lucid_team_repository'
+>>>>>>> main
 
 export const teamProviderMap = [
   [CreateTeamUseCase, CreateTeam],
   [UpdateTeamUseCase, UpdateTeam],
   [DeleteTeamUseCase, DeleteTeam],
   [ListTeamsUseCase, ListTeams],
+<<<<<<< codex/ajouter-sélection-de-2-équipes-au-match
   [TeamRepository, MemoryTeamRepository],
+=======
+  [TeamRepository, LucidTeamRepository],
+>>>>>>> main
 ]
