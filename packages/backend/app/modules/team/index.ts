@@ -6,10 +6,13 @@ import { CreateTeam } from '#team/service/create_team'
 import { UpdateTeam } from '#team/service/update_team'
 import { DeleteTeam } from '#team/service/delete_team'
 import { ListTeams } from '#team/service/list_teams'
+import { TeamRepository } from '#team/secondary/ports/team_repository'
+import { LucidTeamRepository } from '#team/secondary/adapters/lucid_team_repository'
 
 export const teamProviderMap = [
   [CreateTeamUseCase, CreateTeam],
   [UpdateTeamUseCase, UpdateTeam],
   [DeleteTeamUseCase, DeleteTeam],
   [ListTeamsUseCase, ListTeams],
+  [TeamRepository, LucidTeamRepository],
 ]
