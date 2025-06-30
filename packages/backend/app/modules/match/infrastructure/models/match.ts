@@ -1,6 +1,8 @@
-import { BaseModel, column, dateTimeColumn } from '@adonisjs/lucid/orm'
+import { BaseModel, belongsTo, column, dateTimeColumn } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
-import { StatutMatch } from '#match/domain/statut_match'
+import { StatutMatch } from '#match/domain/entity/statut_match'
+import { TeamModel } from '#team/secondary/infrastructure/models/team'
+import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 
 export class MatchModel extends BaseModel {
   static table = 'matches'
@@ -14,11 +16,20 @@ export class MatchModel extends BaseModel {
   @column()
   declare heure: string
 
-  @column({ columnName: 'equipe_domicile_id' })
+  @column({ columnName: 'equipe_domicile' })
   declare equipeDomicileId: string
 
-  @column({ columnName: 'equipe_exterieur_id' })
+  @belongsTo(() => TeamModel, {
+    foreignKey: 'equipeDomicileId',
+    localKey: 'id',
+  })
+  declare equipeDomicile: BelongsTo<typeof TeamModel>
+
+  @column({ columnName: 'equipe_exterieur' })
   declare equipeExterieurId: string
+
+  @belongsTo(() => TeamModel, { foreignKey: 'equipeExterieurId', localKey: 'id' })
+  declare equipeExterieur: BelongsTo<typeof TeamModel>
 
   @column({
     prepare: (value: string[]) => JSON.stringify(value),

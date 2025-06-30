@@ -6,7 +6,7 @@ import { FederalCode } from '#team/domain/federal_code'
 interface Properties {
   id: Identifier
   nom: TeamName
-  codeFederal: FederalCode
+  codeFederal?: FederalCode
   logo?: string
 }
 
@@ -23,13 +23,14 @@ export default class Team extends Entity<Properties> {
   }: {
     id?: string
     nom: string
-    codeFederal: string
+    codeFederal?: string
     logo?: string
   }): Team {
+    const codeFederalValue = codeFederal ? FederalCode.fromString(codeFederal) : undefined
     return new Team({
       id: id ? Identifier.fromString(id) : Identifier.generate(),
       nom: TeamName.fromString(nom),
-      codeFederal: FederalCode.fromString(codeFederal),
+      codeFederal: codeFederalValue,
       logo,
     })
   }

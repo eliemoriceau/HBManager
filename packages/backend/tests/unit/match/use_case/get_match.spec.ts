@@ -1,7 +1,7 @@
 import { test } from '@japa/runner'
-import Match from '#match/domain/match'
+import Match from '#match/domain/entity/match'
 import Team from '#team/domain/team'
-import { GetMatch } from '#match/service/get_match'
+import { GetMatch } from '#match/application/usecase/impl/get_match'
 import { StubMatchRepository } from '#tests/unit/match/stubs/stub_match_repository'
 import { StubTeamRepository } from '#tests/unit/team/stubs/stub_team_repository'
 import { DateTime } from 'luxon'
@@ -14,8 +14,8 @@ function createMatch() {
     codeRenc: 'CR1',
     date: DateTime.fromISO('2025-01-01'),
     heure: '12:00',
-    equipeDomicileId: equipeHome,
-    equipeExterieurId: equipeAway,
+    equipeDomicile: equipeHome,
+    equipeExterieur: equipeAway,
     officiels: [],
   })
 }

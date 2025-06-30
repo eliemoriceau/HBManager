@@ -1,7 +1,7 @@
 import { test } from '@japa/runner'
-import { LucidMatchRepository } from '#match/secondary/adapters/lucid_match_repository'
-import { MatchModel } from '#match/secondary/infrastructure/models/match'
-import Match from '#match/domain/match'
+import { LucidMatchRepository } from '../../../app/modules/match/infrastructure/adapters/lucid_match_repository'
+import { MatchModel } from '#match/infrastructure/models/match'
+import Match from '#match/domain/entity/match'
 import { Identifier } from '#shared/domaine/identifier'
 import { DateTime } from 'luxon'
 import testUtils from '@adonisjs/core/services/test_utils'
@@ -21,8 +21,8 @@ function createMatch(
     codeRenc: 'CR1',
     date: DateTime.fromISO(date),
     heure,
-    equipeDomicileId: equipeHome,
-    equipeExterieurId: equipeAway,
+    equipeDomicile: equipeHome,
+    equipeExterieur: equipeAway,
     officiels: officials,
   })
 }
@@ -36,8 +36,8 @@ test.group('LucidMatchRepository', (group) => {
       id: match1.id.toString(),
       date: match1.date,
       heure: match1.heure,
-      equipeDomicileId: match1.equipeDomicileId.toString(),
-      equipeExterieurId: match1.equipeExterieurId.toString(),
+      equipeDomicileId: match1.equipeDomicile.toString(),
+      equipeExterieurId: match1.equipeExterieur.toString(),
       officiels: match1.officiels.map((o) => o.toString()),
       statut: match1.statut,
       codeRenc: match1.codeRenc,
@@ -46,8 +46,8 @@ test.group('LucidMatchRepository', (group) => {
       id: match2.id.toString(),
       date: match2.date,
       heure: match2.heure,
-      equipeDomicileId: match2.equipeDomicileId.toString(),
-      equipeExterieurId: match2.equipeExterieurId.toString(),
+      equipeDomicileId: match2.equipeDomicile.toString(),
+      equipeExterieurId: match2.equipeExterieur.toString(),
       officiels: match2.officiels.map((o) => o.toString()),
       statut: match2.statut,
       codeRenc: match2.codeRenc,
@@ -68,8 +68,8 @@ test.group('LucidMatchRepository', (group) => {
         id: m.id.toString(),
         date: m.date,
         heure: m.heure,
-        equipeDomicileId: m.equipeDomicileId.toString(),
-        equipeExterieurId: m.equipeExterieurId.toString(),
+        equipeDomicileId: m.equipeDomicile.toString(),
+        equipeExterieurId: m.equipeExterieur.toString(),
         officiels: m.officiels.map((o) => o.toString()),
         statut: m.statut,
         codeRenc: m.codeRenc,
@@ -93,8 +93,8 @@ test.group('LucidMatchRepository', (group) => {
         id: m.id.toString(),
         date: m.date,
         heure: m.heure,
-        equipeDomicileId: m.equipeDomicileId.toString(),
-        equipeExterieurId: m.equipeExterieurId.toString(),
+        equipeDomicileId: m.equipeDomicile.toString(),
+        equipeExterieurId: m.equipeExterieur.toString(),
         officiels: m.officiels.map((o) => o.toString()),
         statut: m.statut,
         codeRenc: m.codeRenc,
@@ -114,8 +114,8 @@ test.group('LucidMatchRepository', (group) => {
       id: match.id.toString(),
       date: match.date,
       heure: match.heure,
-      equipeDomicileId: match.equipeDomicileId.toString(),
-      equipeExterieurId: match.equipeExterieurId.toString(),
+      equipeDomicileId: match.equipeDomicile.toString(),
+      equipeExterieurId: match.equipeExterieur.toString(),
       officiels: match.officiels.map((o) => o.toString()),
       statut: match.statut,
       codeRenc: match.codeRenc,
@@ -143,8 +143,8 @@ test.group('LucidMatchRepository', (group) => {
       codeRenc: 'CR1',
       date: match.date,
       heure: match.heure,
-      equipeDomicileId: match.equipeDomicileId.toString(),
-      equipeExterieurId: match.equipeExterieurId.toString(),
+      equipeDomicile: match.equipeDomicile.toString(),
+      equipeExterieur: match.equipeExterieur.toString(),
       officiels: [newOfficial],
     })
     await repo.upsert(updated)

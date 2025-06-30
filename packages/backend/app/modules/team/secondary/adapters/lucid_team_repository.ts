@@ -2,6 +2,7 @@ import Team from '#team/domain/team'
 import { TeamRepository } from '#team/secondary/ports/team_repository'
 import { TeamModel } from '#team/secondary/infrastructure/models/team'
 import { DatabaseConnectionException } from '#exceptions/database_connection_exception'
+import { TeamExisteFilter } from '#team/use_case/team_by_filter_use_case'
 
 export class LucidTeamRepository implements TeamRepository {
   private toDomain(model: TeamModel): Team {
@@ -49,12 +50,35 @@ export class LucidTeamRepository implements TeamRepository {
     }
   }
 
+  async findByFilter(filter: TeamExisteFilter): Promise<Team[]> {
+    try {
+      const query = TeamModel.query()
+      if (filter.nom) {
+        query.whereRaw('LOWER(nom) = ?', [filter.nom.toLowerCase()])
+      }
+      if (filter.id) {
+        query.whereRaw('LOWER(id) = ?', [filter.id.toLowerCase()])
+      }
+      if (filter.codeFederal) {
+        query.whereRaw('LOWER(codeFederal) = ?', [filter.codeFederal.toLowerCase()])
+      }
+      const result = await query.exec()
+
+      return result.map((team) => this.toDomain(team))
+    } catch (error) {
+      if (error && ['ECONNREFUSED', 'ENOTFOUND'].includes((error as any).code)) {
+        throw new DatabaseConnectionException()
+      }
+      throw error
+    }
+  }
+
   async create(team: Team): Promise<void> {
     try {
       await TeamModel.create({
         id: team.id.toString(),
         nom: team.nom.toString(),
-        codeFederal: team.codeFederal.toString(),
+        codeFederal: team.codeFederal?.toString(),
         logo: team.logo ?? null,
       })
     } catch (error) {
@@ -70,7 +94,7 @@ export class LucidTeamRepository implements TeamRepository {
     try {
       const model = await TeamModel.findOrFail(team.id.toString(), { client: trx })
       model.nom = team.nom.toString()
-      model.codeFederal = team.codeFederal.toString()
+      model.codeFederal = team.codeFederal?.toString()
       model.logo = team.logo ?? null
       await model.save()
       await trx.commit()

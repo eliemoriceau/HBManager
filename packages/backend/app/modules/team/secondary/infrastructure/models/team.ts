@@ -11,7 +11,7 @@ export class TeamModel extends BaseModel {
   declare nom: string
 
   @column({ columnName: 'code_federal' })
-  declare codeFederal: string
+  declare codeFederal?: string
 
   @column()
   declare logo?: string | null

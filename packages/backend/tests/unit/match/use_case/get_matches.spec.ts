@@ -1,6 +1,6 @@
 import { test } from '@japa/runner'
-import Match from '#match/domain/match'
-import { GetMatches } from '#match/service/get_matches'
+import Match from '#match/domain/entity/match'
+import { GetMatches } from '#match/application/usecase/impl/get_matches'
 import { StubMatchRepository } from '#tests/unit/match/stubs/stub_match_repository'
 import { DateTime } from 'luxon'
 
@@ -13,8 +13,8 @@ function createMatch(date: string, heure = '12:00', officials: string[] = [offic
     codeRenc: 'CR1',
     date: DateTime.fromISO(date),
     heure,
-    equipeDomicileId: equipeHome,
-    equipeExterieurId: equipeAway,
+    equipeDomicile: equipeHome,
+    equipeExterieur: equipeAway,
     officiels: officials,
   })
 }

@@ -1,6 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
-import { GetMatchUseCase } from '#match/use_case/get_match_use_case'
+import { GetMatchUseCase } from '#match/application/usecase/get_match_use_case'
 
 @inject()
 export default class GetMatchController {

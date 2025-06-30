@@ -7,14 +7,31 @@ export default class extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.uuid('id').primary()
       table.string('nom').notNullable().unique()
-      table.string('code_federal').notNullable().unique()
+      table.string('code_federal').unique()
       table.string('logo')
       table.date('created_at').notNullable()
       table.date('updated_at').notNullable()
     })
+    this.schema.table('matches', (table) => {
+      table
+        .uuid('equipe_domicile')
+        .unsigned()
+        .references('id')
+        .inTable('teams')
+        .notNullable()
+        .onDelete('CASCADE')
+      table
+        .uuid('equipe_exterieur')
+        .unsigned()
+        .references('id')
+        .inTable('teams')
+        .notNullable()
+        .onDelete('CASCADE')
+    })
   }
 
   async down() {
+    this.schema.dropTable('matches')
     this.schema.dropTable(this.tableName)
   }
 }

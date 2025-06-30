@@ -1,9 +1,9 @@
-import { GetMatchesUseCase } from '#match/use_case/get_matches_use_case'
-import { GetMatchUseCase } from '#match/use_case/get_match_use_case'
-import { GetMatches } from '#match/service/get_matches'
-import { GetMatch } from '#match/service/get_match'
-import { MatchRepository } from '#match/secondary/ports/match_repository'
-import { LucidMatchRepository } from '#match/secondary/adapters/lucid_match_repository'
+import { GetMatchesUseCase } from '#match/application/usecase/get_matches_use_case'
+import { GetMatches } from '#match/application/usecase/impl/get_matches'
+import { GetMatch } from '#match/application/usecase/impl/get_match'
+import { MatchRepository } from '#match/domain/repository/match_repository'
+import { LucidMatchRepository } from '#match/infrastructure/repository/lucid_match_repository'
+import { GetMatchUseCase } from '#match/application/usecase/get_match_use_case'
 
 export const matchProviderMap = [
   [GetMatchesUseCase, GetMatches],

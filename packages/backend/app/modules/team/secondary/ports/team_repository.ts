@@ -1,4 +1,5 @@
 import Team from '#team/domain/team'
+import { TeamExisteFilter } from '#team/use_case/team_by_filter_use_case'
 
 /**
  * Port d'accès et de manipulation des équipes.
@@ -36,4 +37,6 @@ export abstract class TeamRepository {
    * Supprime une équipe par son identifiant.
    */
   abstract delete(id: string): Promise<void>
+
+  abstract findByFilter(filter: TeamExisteFilter): Promise<Team[]>
 }

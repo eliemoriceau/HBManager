@@ -4,11 +4,13 @@ import { promises as fs } from 'node:fs'
 import { inject } from '@adonisjs/core'
 import { CsvImportReport } from '#importer/domain/import_report'
 import { ImportReportRepository } from '#importer/secondary/ports/import_report_repository'
-import Match from '#match/domain/match'
-import { MatchRepository } from '#match/secondary/ports/match_repository'
+import Match from '#match/domain/entity/match'
+import { MatchRepository } from '#match/domain/repository/match_repository'
 import { parse } from 'csv-parse/sync'
-import { StatutMatch } from '#match/domain/statut_match'
+import { StatutMatch } from '#match/domain/entity/statut_match'
 import { DateTime } from 'luxon'
+import logger from '@adonisjs/core/services/logger'
+import Team from '#team/domain/team'
 
 function parseDate(value: string): DateTime {
   const trimmed = value.trim()
@@ -95,7 +97,7 @@ export class UploadCsvService extends UploadCsvUseCase {
         updatedCount: 0,
         ignored: [],
       }
-
+      logger.debug(records)
       for (const [index, line] of records.entries()) {
         try {
           const date = parseDate(line['le'])
@@ -104,11 +106,12 @@ export class UploadCsvService extends UploadCsvUseCase {
             codeRenc: line['code renc'].trim(),
             date,
             heure,
-            equipeDomicileId: line['club rec'].trim(),
-            equipeExterieurId: line['club vis'].trim(),
+            equipeDomicile: Team.create({ nom: line['club rec'].trim() }),
+            equipeExterieur: Team.create({ nom: line['club vis'].trim() }),
             officiels: [line['arb1 designe'], line['arb2 designe']].filter(Boolean),
             statut: StatutMatch.A_VENIR,
           })
+          logger.debug(match)
           const isUpdate = existingCodes.has(match.codeRenc)
           await this.matchRepository.upsert(match)
           report.importedCount++

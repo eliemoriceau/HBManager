@@ -1,6 +1,6 @@
 import { test } from '@japa/runner'
-import Match from '#match/domain/match'
-import { StatutMatch } from '#match/domain/statut_match'
+import Match from '#match/domain/entity/match'
+import { StatutMatch } from '#match/domain/entity/statut_match'
 import { DateTime } from 'luxon'
 
 const equipeHome = '11111111-1111-1111-1111-111111111111'
@@ -16,15 +16,15 @@ test.group('Match.create', () => {
       codeRenc: 'CR1',
       date,
       heure,
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
       officiels: [official],
     })
 
     assert.equal(match.date, date)
     assert.equal(match.heure, heure)
-    assert.equal(match.equipeDomicileId.toString(), equipeHome)
-    assert.equal(match.equipeExterieurId.toString(), equipeAway)
+    assert.equal(match.equipeDomicile.toString(), equipeHome)
+    assert.equal(match.equipeExterieur.toString(), equipeAway)
     assert.deepEqual(
       match.officiels.map((id) => id.toString()),
       [official]
@@ -39,8 +39,8 @@ test.group('Match.create', () => {
       id,
       date: DateTime.fromISO('2025-01-01'),
       heure: '12:30',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     assert.equal(match.id.toString(), id)
@@ -55,8 +55,8 @@ test.group('Match.create', () => {
         codeRenc: 'CR1',
         date,
         heure,
-        equipeDomicileId: equipeHome,
-        equipeExterieurId: equipeHome,
+        equipeDomicile: equipeHome,
+        equipeExterieur: equipeHome,
       })
     }, 'Les équipes doivent être différentes')
   })
@@ -70,8 +70,8 @@ test.group('Match.create', () => {
         codeRenc: 'CR1',
         date,
         heure,
-        equipeDomicileId: '' as any,
-        equipeExterieurId: equipeAway,
+        equipeDomicile: '' as any,
+        equipeExterieur: equipeAway,
       })
     }, "Les identifiants d'équipe sont requis")
   })
@@ -85,8 +85,8 @@ test.group('Match.create', () => {
         codeRenc: 'CR1',
         date,
         heure,
-        equipeDomicileId: equipeHome,
-        equipeExterieurId: '' as any,
+        equipeDomicile: equipeHome,
+        equipeExterieur: '' as any,
       })
     }, "Les identifiants d'équipe sont requis")
   })
@@ -100,8 +100,8 @@ test.group('Match.create', () => {
         codeRenc: 'CR1',
         date,
         heure,
-        equipeDomicileId: equipeHome,
-        equipeExterieurId: equipeAway,
+        equipeDomicile: equipeHome,
+        equipeExterieur: equipeAway,
       })
     }, 'Date du match invalide')
   })
@@ -115,8 +115,8 @@ test.group('Match.create', () => {
         codeRenc: 'CR1',
         date,
         heure,
-        equipeDomicileId: equipeHome,
-        equipeExterieurId: equipeAway,
+        equipeDomicile: equipeHome,
+        equipeExterieur: equipeAway,
       })
     }, 'Heure du match invalide')
   })
@@ -128,8 +128,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date: DateTime.fromISO('2025-01-01'),
       heure: '12:30',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     match.changerStatut(StatutMatch.REPORTE)
@@ -142,8 +142,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date: DateTime.fromISO('2025-01-01'),
       heure: '12:30',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
       statut: StatutMatch.TERMINE,
     })
 
@@ -158,8 +158,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date: DateTime.fromISO('2025-01-01'),
       heure: '12:30',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     assert.throws(() => match.changerStatut('INCONNU' as any), 'Statut inconnu')
@@ -170,8 +170,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date: DateTime.fromISO('2025-01-01'),
       heure: '12:30',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     match.affecterOfficiels([official])
@@ -187,8 +187,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date: DateTime.fromISO('2025-01-01'),
       heure: '12:30',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     match.affecterOfficiels([official, official])
@@ -201,8 +201,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date: DateTime.fromISO('2025-01-01'),
       heure: '12:30',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     assert.throws(() => match.affecterOfficiels([]), 'La liste des officiels est vide')
@@ -213,8 +213,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date: DateTime.fromISO('2025-01-01'),
       heure: '12:30',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     const newDate = DateTime.fromMillis(Date.now() + 86_400_000)
@@ -230,8 +230,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date: DateTime.fromISO('2025-01-01'),
       heure: '12:30',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     const past = DateTime.fromMillis(Date.now() - 1000)
@@ -245,8 +245,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date: DateTime.fromISO('2025-01-01'),
       heure: '12:30',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     assert.throws(
@@ -260,8 +260,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date: DateTime.fromISO('2025-01-01'),
       heure: '12:30',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     assert.throws(
@@ -275,8 +275,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date: DateTime.fromISO('2025-01-01'),
       heure: '12:30',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     const newDate = DateTime.fromMillis(Date.now() + 172_800_000)
@@ -291,8 +291,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date: DateTime.fromISO('2025-01-01'),
       heure: '12:30',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     match.annulerMatch('pluie')
@@ -305,8 +305,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date: DateTime.fromISO('2025-01-01'),
       heure: '12:30',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     assert.throws(() => match.annulerMatch(''), 'Le motif est requis pour annuler')
@@ -317,8 +317,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date: DateTime.fromISO('2025-01-01'),
       heure: '12:30',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     const newDate = DateTime.fromMillis(Date.now() + 172_800_000)
@@ -334,8 +334,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date: DateTime.fromISO('2025-01-01'),
       heure: '12:30',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     const newDate = DateTime.fromMillis(Date.now() + 172_800_000)
@@ -351,8 +351,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date: DateTime.fromISO('2025-01-01'),
       heure: '12:30',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     const past = DateTime.fromMillis(Date.now() - 1000)
@@ -367,8 +367,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date: DateTime.fromISO('2025-01-01'),
       heure: '12:30',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     assert.throws(
@@ -382,8 +382,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date: DateTime.fromISO('2025-01-01'),
       heure: '12:30',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     const future = DateTime.fromMillis(Date.now() + 86_400_000)
@@ -397,8 +397,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date,
       heure: '00:00',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     match.demarrerMatch()
@@ -411,8 +411,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date: DateTime.fromMillis(Date.now() - 3600_000),
       heure: '00:00',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     match.changerStatut(StatutMatch.ANNULE)
@@ -428,8 +428,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date: DateTime.fromMillis(Date.now() + 86_400_000),
       heure: '23:59',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     assert.throws(
@@ -444,8 +444,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date,
       heure: '00:00',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     match.demarrerMatch()
@@ -459,8 +459,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date: DateTime.fromMillis(Date.now() - 3600_000),
       heure: '00:00',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     assert.throws(() => match.terminerMatch(1, 1), 'Le match doit être en cours')
@@ -471,8 +471,8 @@ test.group('Match methods', () => {
       codeRenc: 'CR1',
       date: DateTime.fromMillis(Date.now() - 3600_000),
       heure: '00:00',
-      equipeDomicileId: equipeHome,
-      equipeExterieurId: equipeAway,
+      equipeDomicile: equipeHome,
+      equipeExterieur: equipeAway,
     })
 
     match.demarrerMatch()

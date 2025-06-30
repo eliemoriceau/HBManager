@@ -8,8 +8,6 @@ export default class extends BaseSchema {
       table.uuid('id').primary()
       table.date('date').notNullable()
       table.string('heure').notNullable()
-      table.string('equipe_domicile_id').notNullable()
-      table.string('equipe_exterieur_id').notNullable()
       // Les officiels peuvent être ajoutés après la création du match
       table.text('officiels').nullable()
       table.string('statut').notNullable()
@@ -23,7 +21,5 @@ export default class extends BaseSchema {
     })
   }
 
-  async down() {
-    this.schema.dropTable(this.tableName)
-  }
+  async down() {}
 }

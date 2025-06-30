@@ -1,7 +1,7 @@
 import { test } from '@japa/runner'
-import { MatchModel } from '#match/secondary/infrastructure/models/match'
+import { MatchModel } from '#match/infrastructure/models/match'
 import { DateTime } from 'luxon'
-import { StatutMatch } from '#match/domain/statut_match'
+import { StatutMatch } from '#match/domain/entity/statut_match'
 import testUtils from '@adonisjs/core/services/test_utils'
 import { Identifier } from '#shared/domaine/identifier'
 

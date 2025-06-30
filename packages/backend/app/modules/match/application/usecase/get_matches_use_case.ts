@@ -1,4 +1,4 @@
-import Match from '#match/domain/match'
+import { MatchDetailsDto } from '#match/application/dto/match_details_dto'
 
 export interface GetMatchesFilter {
   startDate?: Date
@@ -8,5 +8,5 @@ export interface GetMatchesFilter {
 }
 
 export abstract class GetMatchesUseCase {
-  abstract execute(filters?: GetMatchesFilter): Promise<Match[]>
+  abstract execute(filters?: GetMatchesFilter): Promise<MatchDetailsDto[]>
 }

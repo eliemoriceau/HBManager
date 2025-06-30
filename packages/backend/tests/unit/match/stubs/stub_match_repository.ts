@@ -1,5 +1,5 @@
-import Match from '#match/domain/match'
-import { MatchRepository, MatchSearchCriteria } from '#match/secondary/ports/match_repository'
+import Match from '#match/domain/entity/match'
+import { MatchRepository, MatchSearchCriteria } from '#match/domain/repository/match_repository'
 
 export class StubMatchRepository implements MatchRepository {
   constructor(private matches: Match[] = []) {}
@@ -18,7 +18,7 @@ export class StubMatchRepository implements MatchRepository {
       }
       if (
         criteria.equipeId &&
-        ![m.equipeDomicileId.toString(), m.equipeExterieurId.toString()].includes(criteria.equipeId)
+        ![m.equipeDomicile.toString(), m.equipeExterieur.toString()].includes(criteria.equipeId)
       ) {
         return false
       }

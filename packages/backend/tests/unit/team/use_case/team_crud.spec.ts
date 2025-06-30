@@ -8,7 +8,7 @@ import { ListTeams } from '#team/service/list_teams'
 import Team from '#team/domain/team'
 import { FederalCode } from '#team/domain/federal_code'
 import InvalidTeamException from '#team/exceptions/invalid_team_exception'
-import Match from '#match/domain/match'
+import Match from '#match/domain/entity/match'
 import { DateTime } from 'luxon'
 
 const equipeId = '11111111-1111-1111-1111-111111111111'
@@ -75,8 +75,8 @@ test.group('Team use cases', (group) => {
     const match = Match.create({
       date: DateTime.fromISO('2025-01-01'),
       heure: '12:00',
-      equipeDomicileId: equipeId,
-      equipeExterieurId: otherId,
+      equipeDomicile: equipeId,
+      equipeExterieur: otherId,
       officiels: [],
       codeRenc: '1',
     })

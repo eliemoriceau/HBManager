@@ -1,4 +1,4 @@
-import Match from '#match/domain/match'
+import Match from '#match/domain/entity/match'
 
 /**
  * Ensemble de critères permettant de rechercher des matchs.

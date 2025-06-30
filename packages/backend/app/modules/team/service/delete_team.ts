@@ -2,7 +2,7 @@ import { inject } from '@adonisjs/core'
 import InvalidTeamException from '#team/exceptions/invalid_team_exception'
 import { TeamRepository } from '#team/secondary/ports/team_repository'
 import { DeleteTeamUseCase } from '#team/use_case/delete_team_use_case'
-import { MatchRepository } from '#match/secondary/ports/match_repository'
+import { MatchRepository } from '#match/domain/repository/match_repository'
 
 @inject()
 export class DeleteTeam extends DeleteTeamUseCase {

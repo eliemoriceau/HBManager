@@ -1,17 +1,18 @@
 import { Entity } from '#shared/domaine/entity'
 import { Identifier } from '#shared/domaine/identifier'
-import InvalidMatchException from '#match/exceptions/invalid_match_exception'
-import InvalidMatchStateException from '#match/exceptions/invalid_match_state_exception'
-import { allowedTransitions, allStatutMatch, StatutMatch } from '#match/domain/statut_match'
+import InvalidMatchException from '#match/application/exception/invalid_match_exception'
+import InvalidMatchStateException from '#match/application/exception/invalid_match_state_exception'
+import { allowedTransitions, allStatutMatch, StatutMatch } from '#match/domain/entity/statut_match'
 import { DateTime } from 'luxon'
+import Team from '#team/domain/team'
 
 interface Properties {
   id: Identifier
   codeRenc: string
   date: DateTime
   heure: string
-  equipeDomicileId: string
-  equipeExterieurId: string
+  equipeDomicile: Team
+  equipeExterieur: Team
   officiels: string[]
   statut: StatutMatch
   motifAnnulation?: string
@@ -29,8 +30,8 @@ export default class Match extends Entity<Properties> {
     id,
     date,
     heure,
-    equipeDomicileId,
-    equipeExterieurId,
+    equipeDomicile,
+    equipeExterieur,
     officiels,
     statut,
     codeRenc,
@@ -39,8 +40,8 @@ export default class Match extends Entity<Properties> {
     codeRenc: string
     date: DateTime
     heure: string
-    equipeDomicileId: string
-    equipeExterieurId: string
+    equipeDomicile: Team
+    equipeExterieur: Team
     officiels?: string[]
     statut?: StatutMatch
   }): Match {
@@ -52,11 +53,11 @@ export default class Match extends Entity<Properties> {
       throw new InvalidMatchException('Heure du match invalide')
     }
 
-    if (!equipeDomicileId || !equipeExterieurId) {
+    if (!equipeDomicile || !equipeExterieur) {
       throw new InvalidMatchException("Les identifiants d'\u00e9quipe sont requis")
     }
 
-    if (equipeDomicileId === equipeExterieurId) {
+    if (equipeDomicile === equipeExterieur) {
       throw new InvalidMatchException('Les équipes doivent être différentes')
     }
 
@@ -64,8 +65,8 @@ export default class Match extends Entity<Properties> {
       id: id ? Identifier.fromString(id) : Identifier.generate(),
       date,
       heure,
-      equipeDomicileId: equipeDomicileId,
-      equipeExterieurId: equipeExterieurId,
+      equipeDomicile: equipeDomicile,
+      equipeExterieur: equipeExterieur,
       officiels: (officiels ?? []).map((o) => o),
       statut: statut ?? StatutMatch.A_VENIR,
       codeRenc,
@@ -80,12 +81,12 @@ export default class Match extends Entity<Properties> {
     return this.props.heure
   }
 
-  get equipeDomicileId() {
-    return this.props.equipeDomicileId
+  get equipeDomicile() {
+    return this.props.equipeDomicile
   }
 
-  get equipeExterieurId() {
-    return this.props.equipeExterieurId
+  get equipeExterieur() {
+    return this.props.equipeExterieur
   }
 
   get officiels() {

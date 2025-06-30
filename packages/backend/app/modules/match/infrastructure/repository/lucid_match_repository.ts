@@ -1,17 +1,36 @@
-import Match from '#match/domain/match'
-import { StatutMatch } from '#match/domain/statut_match'
-import { MatchRepository, MatchSearchCriteria } from '#match/secondary/ports/match_repository'
-import { MatchModel } from '#match/secondary/infrastructure/models/match'
+import Match from '#match/domain/entity/match'
+import { StatutMatch } from '#match/domain/entity/statut_match'
+import { MatchRepository, MatchSearchCriteria } from '#match/domain/repository/match_repository'
+import { MatchModel } from '#match/infrastructure/models/match'
 import { DatabaseConnectionException } from '#exceptions/database_connection_exception'
+import Team from '#team/domain/team'
+import TeamExisteUseCase, { TeamExisteResult } from '#team/use_case/team_by_filter_use_case'
+import { inject } from '@adonisjs/core'
+import { CreateTeamUseCase } from '#team/use_case/create_team_use_case'
+import logger from '@adonisjs/core/services/logger'
 
+@inject()
 export class LucidMatchRepository implements MatchRepository {
+  constructor(
+    private readonly teamExisteUseCase: TeamExisteUseCase,
+    private readonly createTeamUseCase: CreateTeamUseCase
+  ) {}
+
   private toDomain(model: MatchModel): Match {
     return Match.create({
       id: model.id,
       date: model.date,
       heure: model.heure,
-      equipeDomicileId: model.equipeDomicileId,
-      equipeExterieurId: model.equipeExterieurId,
+      equipeDomicile: Team.create({
+        id: model.equipeDomicile.id.toString(),
+        nom: model.equipeDomicile.nom,
+        codeFederal: model.equipeDomicile.codeFederal?.toString(),
+      }),
+      equipeExterieur: Team.create({
+        id: model.equipeExterieur.id.toString(),
+        nom: model.equipeExterieur.nom,
+        codeFederal: model.equipeExterieur.codeFederal?.toString(),
+      }),
       officiels: model.officiels,
       statut: model.statut as StatutMatch,
       codeRenc: model.codeRenc,
@@ -20,7 +39,7 @@ export class LucidMatchRepository implements MatchRepository {
 
   async findAll(): Promise<Match[]> {
     try {
-      const models = await MatchModel.all()
+      const models = await MatchModel.query().preload('equipeDomicile').preload('equipeExterieur')
       return models.map((m) => this.toDomain(m))
     } catch (error) {
       if (error && ['ECONNREFUSED', 'ENOTFOUND'].includes((error as any).code)) {
@@ -74,7 +93,7 @@ export class LucidMatchRepository implements MatchRepository {
   async upsert(match: Match): Promise<void> {
     try {
       const existing = await MatchModel.query().where('code_renc', match.codeRenc).first()
-
+      logger.debug({ match, existing, domicileType: match.equipeDomicile.nom.toString() })
       if (existing) {
         existing.officiels = match.officiels.map((o) => o.toString())
         existing.statut = match.statut
@@ -82,21 +101,56 @@ export class LucidMatchRepository implements MatchRepository {
         return
       }
 
+      let equipeDomicile: TeamExisteResult[] = await this.teamExisteUseCase.execute({
+        nom: match.equipeDomicile.nom.toString(),
+      })
+      logger.debug({ equipeDomicile })
+
+      if (equipeDomicile.length === 0) {
+        equipeDomicile = [
+          await this.createTeamUseCase.execute({
+            nom: match.equipeDomicile.nom.toString(),
+          }),
+        ]
+      }
+      logger.debug({ equipeDomicile })
+      if (equipeDomicile.length !== 1) {
+        throw new Error('erreur avec equipe domicile')
+      }
+
+      let equipeExterieur = await this.teamExisteUseCase.execute({
+        nom: match.equipeExterieur.nom.toString(),
+      })
+
+      if (equipeExterieur.length === 0) {
+        equipeExterieur = [
+          await this.createTeamUseCase.execute({ nom: match.equipeExterieur.nom.toString() }),
+        ]
+      }
+
+      if (equipeExterieur.length !== 1) {
+        throw new Error('erreur avec equipe exterieur')
+      }
+      logger.debug({ equipeExterieur })
       const values = {
         id: match.id.toString(),
         date: match.date,
         heure: match.heure,
-        equipeDomicileId: match.equipeDomicileId.toString(),
-        equipeExterieurId: match.equipeExterieurId.toString(),
+        equipe_domicile: equipeDomicile.at(0)?.id,
+        equipe_exterieur: equipeExterieur.at(0)?.id,
         officiels: match.officiels.map((o) => o.toString()),
         statut: match.statut,
         codeRenc: match.codeRenc,
       }
-      await MatchModel.create(values)
+      logger.debug({ values })
+      const matchRes = await MatchModel.create(values)
+      logger.debug({ res: matchRes })
+      return
     } catch (error) {
       if (error && ['ECONNREFUSED', 'ENOTFOUND'].includes((error as any).code)) {
         throw new DatabaseConnectionException()
       }
+      logger.error(error)
       throw error
     }
   }

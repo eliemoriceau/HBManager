@@ -1,5 +1,6 @@
 import Team from '#team/domain/team'
 import { TeamRepository } from '#team/secondary/ports/team_repository'
+import { TeamExisteFilter } from '#team/use_case/team_by_filter_use_case'
 
 export class MemoryTeamRepository implements TeamRepository {
   constructor(private teams: Team[] = []) {}
@@ -35,5 +36,8 @@ export class MemoryTeamRepository implements TeamRepository {
     if (index >= 0) {
       this.teams.splice(index, 1)
     }
+  }
+  findByFilter(_filter: TeamExisteFilter): Promise<Team[]> {
+    return Promise.resolve([])
   }
 }

@@ -8,6 +8,8 @@ import { DeleteTeam } from '#team/service/delete_team'
 import { ListTeams } from '#team/service/list_teams'
 import { TeamRepository } from '#team/secondary/ports/team_repository'
 import { LucidTeamRepository } from '#team/secondary/adapters/lucid_team_repository'
+import TeamExisteUseCase from '#team/use_case/team_by_filter_use_case'
+import IsExiste from '#team/service/is_existe'
 
 export const teamProviderMap = [
   [CreateTeamUseCase, CreateTeam],
@@ -15,4 +17,5 @@ export const teamProviderMap = [
   [DeleteTeamUseCase, DeleteTeam],
   [ListTeamsUseCase, ListTeams],
   [TeamRepository, LucidTeamRepository],
+  [TeamExisteUseCase, IsExiste],
 ]
