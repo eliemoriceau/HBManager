@@ -1,0 +1,12 @@
+{
+  "version": "1",
+  "name": "HBManager",
+  "type": "collection",
+  "ignore": ["node_modules", ".git"],
+  "size": 0.00074005126953125,
+  "filesCount": 5,
+  "presets": {
+    "requestType": "http",
+    "requestUrl": "https://localhost"
+  }
+}
