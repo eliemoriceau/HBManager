@@ -1,0 +1,77 @@
+---
+description: APPLY Lucid standards ORM WHEN developing with AdonisJS
+globs: packages/**/app/**/*.ts, **/database/**/*.ts
+alwaysApply: false
+---
+
+Architecture:
+- **Use a modular structure** to organize your application [Outside source - common pattern in AdonisJS].
+
+Modules:
+- **Import necessary files** (models, services, etc.) in parent modules or where dependencies are required [Outside source - standard practice].
+
+Classes:
+- **Use Dependency Injection (DI)** to handle interactions with external services [Outside source - common pattern in AdonisJS].
+- Use **plain JavaScript classes** for stateless utilities.
+
+Controllers:
+- **Only handle the HTTP layer** (request processing and response building) [Outside source - standard controller role].
+- Use **Lucid's validation rules for VineJS** (`unique`, `exists`) for input data validation.
+- **Delegate complex business logic** to services or use cases, not directly to models or query builders.
+
+Models (Domain Objects):
+- **Define database columns as class properties** decorated with `@column`.
+- Use the **`prepare` and `consume` options** of the `@column` decorator to transform column values before saving to the database and after fetching (e.g., for encryption or converting dates to `luxon.DateTime` objects).
+- Implement model-specific business logic via **methods and properties on model classes**.
+- Leverage **Model Hooks** (`@beforeSave`, `@afterCreate`, `@beforeDelete`, etc.) to encapsulate specific actions at different stages of the model's lifecycle (e.g., password hashing).
+- Manage **serialization of model instances to simple JSON objects** for API responses using `serialize` or `toJSON` methods. Use `@computed` for calculated properties and `serializeAs` to rename or hide properties in the JSON output.
+- Define **relationships between models** using decorators (`@hasOne`, `@hasMany`, `@belongsTo`, `@manyToMany`, `@hasManyThrough`).
+
+Domain Services:
+- **Encapsulate complex business logic** and orchestrate interactions between models.
+- Use **model query builders** (`Model.query()`) for advanced queries or specific operations requiring model abstraction.
+
+Use Cases:
+- **Coordinate workflows** and interactions between different domain parts.
+- For basic CRUD operations, use **Lucid's static model methods** (`Model.create()`, `Model.find()`, `model.save()`, `model.delete()`).
+- For idempotent operations (insert if not existing, update if existing), use methods like `firstOrCreate`, `updateOrCreate`, `fetchOrCreateMany`, `updateOrCreateMany`.
+- **Do not make direct database calls** that bypass models or query builders.
+
+Repositories:
+- **Interact with Lucid models** for all data persistence operations.
+- Use **`preload` methods** to efficiently load relationships with the main query.
+- Use **relationship aggregates (`withCount`, `withAggregate`)** to get summary information for relationships.
+- Apply filters based on relationships with **`has` or `whereHas` methods**.
+- **Always return Lucid model instances**.
+- Keep database driver-specific types (like `knexQuery`) **internal** to this layer.
+
+Mappers:
+- Leverage **Lucid model serialization capabilities** (`serialize`, `toJSON`) to transform model instances into simple JSON objects suitable for API responses.
+- Use column options (`serializeAs`, `serialize`) to **rename, hide, or mutate properties** directly at the model level.
+
+Testing:
+- Use **Jest** for unit and integration tests [Outside source - common in AdonisJS projects].
+- For integration tests, use **Model Factories** (`ModelFactory.create()`, `createMany()`) to generate and persist fake data, creating complex database states with minimal code.
+- Use **Database Seeders** to insert initial or dummy data required for tests.
+- **Avoid mocking the database** for integration tests to ensure actual interactions with Lucid and the DBMS are tested.
+
+Seeders:
+- **Use Lucid models** or query builders (`db.query()`, `db.insertQuery()`) directly to insert initial or dummy data.
+- Implement **idempotent operations** (e.g., with `updateOrCreateMany`) to prevent duplicates if the seeder is run multiple times.
+- Assume the database is initially empty or that idempotent operations handle existing data.
+- Can be configured to run only in **specific environments** (`static environment`).
+
+Migrations:
+- **Write incremental changesets** to alter the database schema over time.
+- Use the **Schema Builder (`this.schema`)** for all DDL operations (creating, altering, dropping tables, columns, indexes, etc.).
+- For data operations that need to run during a migration (after schema changes), use the `this.defer` method.
+- **Do not attempt to infer schema changes from models**; maintain a clear separation of responsibilities between migrations and models.
+- **Avoid rollbacks in production** to prevent data loss.
+
+Debugging:
+- Enable **debug mode** globally (in `config/database.ts`) or for an individual query (`.debug(true)` method on the query builder) to visualize executed SQL queries.
+
+Transactions:
+- Use `db.transaction()` to **wrap database operations** and ensure their atomicity (all or nothing).
+- Pass the transaction instance (`trx`) to query builders and models (`.useTransaction(trx)` or by injecting it via `{ client: trx }`).
+- For persisting relationships within a transaction, the relationship will implicitly reference the transaction from the model instance.

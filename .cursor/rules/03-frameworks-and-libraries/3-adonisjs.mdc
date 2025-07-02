@@ -1,0 +1,85 @@
+---
+description: APPLIQUER les standards du framework AdonisJS LORS du développement avec AdonisJS
+globs:
+  - app/**/*.ts
+  - config/**/*.ts
+  - start/**/*.ts
+  - database/**/*.ts
+  - providers/**/*.ts
+  - commands/**/*.ts
+  - resources/**/*.ts
+  - tests/**/*.ts
+alwaysApply: false
+---
+
+### Architecture
+
+*   Utiliser la **structure de dossiers par défaut d'AdonisJS** pour organiser le code (`app/controllers`, `app/models`, `app/services`, `database/migrations`, `resources/views`, `public/assets`, etc.).
+*   Séparer les préoccupations en couches distinctes (HTTP, logique métier, persistance des données).
+
+### Modules et Services
+
+*   **Fournisseurs de Services (`providers`)**: Enregistrer les **bindings** dans le conteneur IoC et initialiser les services (méthodes `register` et `boot`).
+*   **Fournisseurs de Configuration (`config providers`)**: Utiliser le pattern `configProvider.create()` pour la configuration qui dépend du conteneur IoC ou de l'état de l'application.
+*   **Services du Conteneur IoC**: Préférer l'**importation directe** des services via les alias (`#services/mon_service`) pour les services exposés par les paquets officiels ou vos propres services.
+
+### Classes
+
+*   **Injection de Dépendances (DI)**: Toujours utiliser le décorateur **`@inject()`** et les *type hints* pour les interactions avec d'autres services ou le `HttpContext`.
+*   **`AsyncLocalStorage` (ALS)**: Utiliser `HttpContext.getOrFail()` pour accéder au contexte HTTP dans des couches profondes de l'application sans le passer explicitement, mais **éviter l'accès à l'ALS au niveau supérieur des modules ou dans les propriétés statiques de classes** pour éviter les problèmes de cache et de portée de requête.
+
+### Contrôleurs
+
+*   **Rôle**: Les contrôleurs doivent **uniquement gérer la couche HTTP** (recevoir les requêtes, valider les entrées, retourner les réponses).
+*   **Validation**: Utiliser **VineJS** via `request.validateUsing(validator)` pour valider les données d'entrée.
+*   **Logique Métier**: **Déléguer la logique métier complexe à des classes de service dédiées** (ex: `UserService`) qui peuvent être injectées.
+*   **Méthodes Resourceful**: Utiliser les méthodes standards (ex: `index`, `store`, `show`, `update`, `destroy`) lors de la création de contrôleurs pour les **ressources RESTful** avec `node ace make:controller --resource`.
+*   **Middleware**: Appliquer les middlewares pour la sécurité (authentification, CORS, CSRF) et la logique de pré-traitement de la requête.
+
+### Modèles (Lucid ORM)
+
+*   **AuthFinder**: Utiliser le **mixin `withAuthFinder`** sur les modèles utilisateur pour la vérification des identifiants et le **hachage automatique des mots de passe**.
+*   **Hooks de Modèle**: Utiliser les hooks de modèle (ex: `@beforeSave`, `@afterSave`) pour la logique liée au cycle de vie des modèles, comme la modification des données avant la sauvegarde.
+
+### Services Métier (Domain Services)
+
+*   **Encapsulation**: **Encapsuler la logique métier complexe** dans ces services pour la rendre réutilisable et testable.
+*   **Accès à la Base de Données**: Interagir avec la base de données via les modèles Lucid ou le service `db`.
+*   **Injection**: Les services métier doivent être conçus pour être injectables via le conteneur IoC.
+
+### Fichiers Statiques et Assets Frontend
+
+*   **Fichiers Statiques**: Placer les fichiers statiques non-compilés (ex: `robots.txt`, `favicon.ico`) dans le **dossier `public`**.
+*   **Assets Frontend**: Utiliser **Vite** pour la gestion et le **bundling des assets frontend** (fichiers JS/TS, CSS, images, polices) qui se trouvent dans le **dossier `resources`**.
+*   **Déploiement**: S'assurer que les **`metaFiles` dans `adonisrc.ts`** incluent tous les assets nécessaires pour le build de production.
+
+### Sécurité
+
+*   **Hachage**: Utiliser le **service `hash`** d'AdonisJS pour hacher les mots de passe et autres données sensibles (`bcrypt`, `scrypt`, `argon2` sont pris en charge).
+*   **Chiffrement**: Utiliser le **service `encryption`** pour chiffrer et déchiffrer les données sensibles.
+*   **Authentification**: Configurer les **gardes d'authentification** (session, jetons d'accès, basic auth) et utiliser les **middlewares `auth`** pour protéger les routes et authentifier les utilisateurs.
+*   **Autorisation (Bouncer)**: Définir les **`abilities`** (fonctions) et les **`policies`** (classes) pour implémenter des contrôles d'accès granulaires.
+*   **CORS**: Configurer le **middleware `@adonisjs/cors`** pour gérer les requêtes inter-origines et sécuriser l'API.
+*   **Protection SSR (`@adonisjs/shield`)**: Utiliser le package **`@adonisjs/shield`** pour protéger les applications rendues côté serveur contre les attaques courantes comme CSRF, XSS, etc..
+
+### Logging
+
+*   Utiliser **`ctx.logger`** au sein des requêtes HTTP pour des logs sensibles au contexte qui incluent automatiquement l'ID de requête.
+*   Configurer le logger dans `config/logger.ts` pour définir les transports, niveaux et noms des loggers.
+
+### Gestion des Exceptions
+
+*   **Centralisation**: Centraliser la gestion des exceptions HTTP dans la classe **`HttpExceptionHandler`** (`app/exceptions/handler.ts`).
+*   **Exceptions Personnalisées**: Implémenter les méthodes `handle` et `report` sur les exceptions personnalisées (`make:exception`) pour une gestion spécifique des erreurs ou leur rapport à des services externes.
+
+### Tests
+
+*   **Framework de Test**: Utiliser **Japa** comme framework de test d'AdonisJS.
+*   **Types de Tests**: Écrire des tests pour les requêtes HTTP, le navigateur, les commandes console et la base de données.
+*   **Isolation**: Utiliser **`testUtils.createHttpContext()`** ou **`HttpContextFactory`** pour créer un contexte HTTP factice afin de tester les middlewares et les contrôleurs en isolation.
+*   **Mocks/Fakes**: Faire attention à restaurer les **fakes/mocks** (`drive.fake()`, `drive.restore()`) après les tests pour éviter les interférences.
+
+### Seeders
+
+*   **Base de Données**: Les seeders (`database/seeders`) doivent assumer que la base de données est vide et sont utilisés pour peupler la base de données avec des données de test ou initiales.
+*   **Dépendances**: Les seeders ne sont pas typiquement "injectés comme services" mais peuvent utiliser le conteneur IoC pour résoudre des dépendances si nécessaire.
