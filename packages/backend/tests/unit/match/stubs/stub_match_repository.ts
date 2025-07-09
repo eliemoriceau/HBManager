@@ -41,4 +41,14 @@ export class StubMatchRepository implements MatchRepository {
       this.matches.push(match)
     }
   }
+
+  async findExistingCodes(): Promise<Set<string>> {
+    return new Set(this.matches.map((m) => m.codeRenc))
+  }
+
+  async upsertBatch(matches: Match[]): Promise<void> {
+    for (const match of matches) {
+      await this.upsert(match)
+    }
+  }
 }

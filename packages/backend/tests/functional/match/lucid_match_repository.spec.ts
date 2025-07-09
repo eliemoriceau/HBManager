@@ -1,10 +1,16 @@
 import { test } from '@japa/runner'
-import { LucidMatchRepository } from '../../../app/modules/match/infrastructure/adapters/lucid_match_repository'
 import { MatchModel } from '#match/infrastructure/models/match'
 import Match from '#match/domain/entity/match'
 import { Identifier } from '#shared/domaine/identifier'
 import { DateTime } from 'luxon'
 import testUtils from '@adonisjs/core/services/test_utils'
+import Team from '#team/domain/team'
+import { LucidMatchRepository } from '#match/infrastructure/repository/lucid_match_repository'
+import TeamExisteUseCase, {
+  TeamExisteFilter,
+  TeamExisteResult,
+} from '#team/use_case/team_by_filter_use_case'
+import app from '@adonisjs/core/services/app'
 
 const equipeHome = '11111111-1111-1111-1111-111111111111'
 const equipeAway = '22222222-2222-2222-2222-222222222222'
@@ -21,8 +27,8 @@ function createMatch(
     codeRenc: 'CR1',
     date: DateTime.fromISO(date),
     heure,
-    equipeDomicile: equipeHome,
-    equipeExterieur: equipeAway,
+    equipeDomicile: Team.create({ nom: equipeHome }),
+    equipeExterieur: Team.create({ nom: equipeAway }),
     officiels: officials,
   })
 }
@@ -52,12 +58,24 @@ test.group('LucidMatchRepository', (group) => {
       statut: match2.statut,
       codeRenc: match2.codeRenc,
     })
-
-    const repo = new LucidMatchRepository()
+    const repo = await testUtils.app.container.make(LucidMatchRepository)
     const res = await repo.findAll()
 
     assert.lengthOf(res, 2)
   })
+    .setup(() => {
+      class mockTeamExisteUseCase extends TeamExisteUseCase {
+        async execute(filter: TeamExisteFilter): Promise<TeamExisteResult[]> {
+          return [{ nom: filter.nom ?? '', id: filter.id ?? '' } satisfies TeamExisteResult]
+        }
+      }
+      app.container.swap(TeamExisteUseCase, () => {
+        return new mockTeamExisteUseCase()
+      })
+    })
+    .teardown(() => {
+      app.container.restore(TeamExisteUseCase)
+    })
 
   test('findByCriteria filters by date range', async ({ assert }) => {
     const match1 = createMatch('2025-01-01')
@@ -76,7 +94,7 @@ test.group('LucidMatchRepository', (group) => {
       })
     }
 
-    const repo = new LucidMatchRepository()
+    const repo = await testUtils.app.container.make(LucidMatchRepository)
     const res = await repo.findByCriteria({
       startDate: new Date('2025-01-01'),
       endDate: new Date('2025-01-02'),
@@ -84,6 +102,22 @@ test.group('LucidMatchRepository', (group) => {
 
     assert.lengthOf(res, 2)
   })
+    .teardown(() => {
+      app.container.restore(TeamExisteUseCase)
+    })
+    .setup(() => {
+      class mockTeamExisteUseCase extends TeamExisteUseCase {
+        async execute(filter: TeamExisteFilter): Promise<TeamExisteResult[]> {
+          return [{ nom: filter.nom ?? '', id: filter.id ?? '' } satisfies TeamExisteResult]
+        }
+      }
+      app.container.swap(TeamExisteUseCase, () => {
+        return new mockTeamExisteUseCase()
+      })
+    })
+    .teardown(() => {
+      app.container.restore(TeamExisteUseCase)
+    })
 
   test('findByCriteria filters by official', async ({ assert }) => {
     const match1 = createMatch('2025-01-01')
@@ -143,8 +177,8 @@ test.group('LucidMatchRepository', (group) => {
       codeRenc: 'CR1',
       date: match.date,
       heure: match.heure,
-      equipeDomicile: match.equipeDomicile.toString(),
-      equipeExterieur: match.equipeExterieur.toString(),
+      equipeDomicile: match.equipeDomicile,
+      equipeExterieur: match.equipeExterieur,
       officiels: [newOfficial],
     })
     await repo.upsert(updated)

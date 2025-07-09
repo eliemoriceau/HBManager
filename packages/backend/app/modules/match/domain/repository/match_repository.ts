@@ -45,4 +45,17 @@ export abstract class MatchRepository {
    * @param match Match à sauvegarder
    */
   abstract upsert(match: Match): Promise<void>
+
+  /**
+   * Retourne uniquement les codes de rencontre existants.
+   * Optimisé pour éviter les requêtes N+1 lors des imports.
+   */
+  abstract findExistingCodes(): Promise<Set<string>>
+
+  /**
+   * Crée ou met à jour plusieurs matchs en une seule transaction.
+   * Optimisé pour les imports en lot.
+   * @param matches Liste des matchs à sauvegarder
+   */
+  abstract upsertBatch(matches: Match[]): Promise<void>
 }

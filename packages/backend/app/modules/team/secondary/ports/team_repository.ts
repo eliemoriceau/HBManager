@@ -39,4 +39,16 @@ export abstract class TeamRepository {
   abstract delete(id: string): Promise<void>
 
   abstract findByFilter(filter: TeamExisteFilter): Promise<Team[]>
+
+  /**
+   * Retourne un mapping nom -> équipe pour optimiser les recherches.
+   * Utilisé pour éviter les requêtes N+1 lors des imports.
+   */
+  abstract findTeamsByNames(names: string[]): Promise<Map<string, Team>>
+
+  /**
+   * Crée plusieurs équipes en une seule transaction.
+   * @param teams Liste des équipes à créer
+   */
+  abstract createBatch(teams: Team[]): Promise<void>
 }
