@@ -2,8 +2,10 @@ import Team from '#team/domain/team'
 import { TeamRepository } from '#team/secondary/ports/team_repository'
 import { TeamExisteFilter } from '#team/use_case/team_by_filter_use_case'
 
-export class MemoryTeamRepository implements TeamRepository {
-  constructor(private teams: Team[] = []) {}
+export class MemoryTeamRepository extends TeamRepository {
+  constructor(private teams: Team[] = []) {
+    super()
+  }
 
   async findAll(): Promise<Team[]> {
     return [...this.teams]
@@ -39,5 +41,23 @@ export class MemoryTeamRepository implements TeamRepository {
   }
   findByFilter(_filter: TeamExisteFilter): Promise<Team[]> {
     return Promise.resolve([])
+  }
+
+  async findTeamsByNames(names: string[]): Promise<Map<string, Team>> {
+    const result = new Map<string, Team>()
+    const lowerNames = names.map((name) => name.toLowerCase())
+
+    for (const team of this.teams) {
+      const teamName = team.nom.toString().toLowerCase()
+      if (lowerNames.includes(teamName)) {
+        result.set(teamName, team)
+      }
+    }
+
+    return result
+  }
+
+  async createBatch(teams: Team[]): Promise<void> {
+    this.teams.push(...teams)
   }
 }

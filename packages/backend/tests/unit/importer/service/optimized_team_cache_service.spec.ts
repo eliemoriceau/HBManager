@@ -7,7 +7,10 @@ test.group('OptimizedTeamCacheService', () => {
   test('getOrCreateTeam devrait retourner une équipe existante', async ({ assert }) => {
     // Arrange
     const teamRepository = new StubTeamRepository()
-    const existingTeam = Team.create({ id: '1', nom: 'Team Existing' })
+    const existingTeam = Team.create({
+      id: '11111111-1111-1111-1111-111111111111',
+      nom: 'Team Existing',
+    })
     await teamRepository.create(existingTeam)
 
     // Créer des stubs pour les use cases
@@ -24,7 +27,7 @@ test.group('OptimizedTeamCacheService', () => {
 
     const createTeamUseCase = {
       execute: async ({ nom }: { nom: string }) => {
-        const newTeam = Team.create({ id: Date.now().toString(), nom })
+        const newTeam = Team.create({ nom })
         await teamRepository.create(newTeam)
         return {
           id: newTeam.id.toString(),
@@ -44,7 +47,7 @@ test.group('OptimizedTeamCacheService', () => {
 
     // Assert
     assert.equal(result.nom, 'Team Existing')
-    assert.equal(result.id, '1')
+    assert.equal(result.id, '11111111-1111-1111-1111-111111111111')
   })
 
   test("getOrCreateTeam devrait créer une nouvelle équipe si elle n'existe pas", async ({
@@ -66,7 +69,7 @@ test.group('OptimizedTeamCacheService', () => {
 
     const createTeamUseCase = {
       execute: async ({ nom }: { nom: string }) => {
-        const newTeam = Team.create({ id: Date.now().toString(), nom })
+        const newTeam = Team.create({ nom })
         await teamRepository.create(newTeam)
         return {
           id: newTeam.id.toString(),
@@ -96,7 +99,10 @@ test.group('OptimizedTeamCacheService', () => {
   test('getOrCreateTeam devrait utiliser le cache pour les appels répétés', async ({ assert }) => {
     // Arrange
     const teamRepository = new StubTeamRepository()
-    const existingTeam = Team.create({ id: '1', nom: 'Cached Team' })
+    const existingTeam = Team.create({
+      id: '22222222-2222-2222-2222-222222222222',
+      nom: 'Cached Team',
+    })
     await teamRepository.create(existingTeam)
 
     let callCount = 0
@@ -114,7 +120,7 @@ test.group('OptimizedTeamCacheService', () => {
 
     const createTeamUseCase = {
       execute: async ({ nom }: { nom: string }) => {
-        const newTeam = Team.create({ id: Date.now().toString(), nom })
+        const newTeam = Team.create({ nom })
         await teamRepository.create(newTeam)
         return {
           id: newTeam.id.toString(),
@@ -142,8 +148,8 @@ test.group('OptimizedTeamCacheService', () => {
   test('preloadTeams devrait charger plusieurs équipes efficacement', async ({ assert }) => {
     // Arrange
     const teamRepository = new StubTeamRepository()
-    const team1 = Team.create({ id: '1', nom: 'Team A' })
-    const team2 = Team.create({ id: '2', nom: 'Team B' })
+    const team1 = Team.create({ id: '33333333-3333-3333-3333-333333333333', nom: 'Team A' })
+    const team2 = Team.create({ id: '44444444-4444-4444-4444-444444444444', nom: 'Team B' })
     await teamRepository.create(team1)
     await teamRepository.create(team2)
 
@@ -160,7 +166,7 @@ test.group('OptimizedTeamCacheService', () => {
 
     const createTeamUseCase = {
       execute: async ({ nom }: { nom: string }) => {
-        const newTeam = Team.create({ id: Date.now().toString(), nom })
+        const newTeam = Team.create({ nom })
         await teamRepository.create(newTeam)
         return {
           id: newTeam.id.toString(),

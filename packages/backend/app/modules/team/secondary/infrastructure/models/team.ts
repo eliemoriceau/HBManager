@@ -10,8 +10,8 @@ export class TeamModel extends BaseModel {
   @column()
   declare nom: string
 
-  @column({ columnName: 'code_federal' })
-  declare codeFederal?: string
+  @column({ columnName: 'code_federal', serialize: (value) => value || '' })
+  declare codeFederal: string
 
   @column()
   declare logo?: string | null

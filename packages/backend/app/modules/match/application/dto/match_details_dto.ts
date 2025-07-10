@@ -31,17 +31,17 @@ export interface MatchDetailsDto {
 
 export const matchDetailsDtoDomainsToDto = (match: Match): MatchDetailsDto => {
   const home: TeamDto = {
-    id: match.equipeDomicile.id?.toString(),
-    nom: match.equipeDomicile.nom.toString(),
-    codeFederal: match.equipeDomicile.codeFederal?.toString(),
-    logo: match.equipeDomicile.logo,
+    id: match.equipeDomicile?.id?.toString() || '',
+    nom: match.equipeDomicile?.nom?.toString() || 'Équipe non spécifiée',
+    codeFederal: match.equipeDomicile?.codeFederal?.toString(),
+    logo: match.equipeDomicile?.logo,
   }
 
   const away: TeamDto = {
-    id: match.equipeExterieur.id?.toString(),
-    nom: match.equipeExterieur.nom.toString(),
-    codeFederal: match.equipeExterieur.codeFederal?.toString(),
-    logo: match.equipeExterieur.logo,
+    id: match.equipeExterieur?.id?.toString() || '',
+    nom: match.equipeExterieur?.nom?.toString() || 'Équipe non spécifiée',
+    codeFederal: match.equipeExterieur?.codeFederal?.toString(),
+    logo: match.equipeExterieur?.logo,
   }
   return {
     match: {

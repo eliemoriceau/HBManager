@@ -3,18 +3,26 @@ import { DateTime } from 'luxon'
 import Match from '#match/domain/entity/match'
 import { MatchModel } from '#match/infrastructure/models/match'
 import testUtils from '@adonisjs/core/services/test_utils'
+import Team from '#team/domain/team'
 
 const equipeHome = '11111111-1111-1111-1111-111111111111'
 const equipeAway = '22222222-2222-2222-2222-222222222222'
 const official = '33333333-3333-4333-8333-333333333333'
 
+function createTeam(id: string, name: string) {
+  return Team.create({ id, nom: name })
+}
+
 function createMatch(date: string, heure = '12:00', officials: string[] = [official]) {
+  const teamHome = createTeam(equipeHome, 'Team Home')
+  const teamAway = createTeam(equipeAway, 'Team Away')
+
   return Match.create({
     codeRenc: 'CR1',
     date: DateTime.fromISO(date),
     heure,
-    equipeDomicile: equipeHome,
-    equipeExterieur: equipeAway,
+    equipeDomicile: teamHome,
+    equipeExterieur: teamAway,
     officiels: officials,
   })
 }

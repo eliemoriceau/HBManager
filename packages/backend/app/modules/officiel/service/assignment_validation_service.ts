@@ -1,6 +1,7 @@
 import { Officiel } from '#officiel/domain/entity/officiel'
 import { Assignment } from '#officiel/domain/entity/assignment'
 import Match from '#match/domain/entity/match'
+import { inject } from '@adonisjs/core'
 
 export interface AssignmentValidationResult {
   isValid: boolean
@@ -9,6 +10,7 @@ export interface AssignmentValidationResult {
   warnings: string[]
 }
 
+@inject()
 export class AssignmentValidationService {
   validateAssignment(
     officiel: Officiel,

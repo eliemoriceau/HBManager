@@ -10,6 +10,8 @@ import TeamExisteUseCase, {
   TeamExisteFilter,
   TeamExisteResult,
 } from '#team/use_case/team_by_filter_use_case'
+import { CreateTeamUseCase } from '#team/use_case/create_team_use_case'
+import { OptimizedTeamCacheService } from '#importer/service/optimized_team_cache_service'
 import app from '@adonisjs/core/services/app'
 
 const equipeHome = '11111111-1111-1111-1111-111111111111'
@@ -163,7 +165,7 @@ test.group('LucidMatchRepository', (group) => {
   })
 
   test('upsert creates or updates a match', async ({ assert }) => {
-    const repo = new LucidMatchRepository()
+    const repo = await testUtils.app.container.make(LucidMatchRepository)
     const matchId = Identifier.generate().toString()
     const match = createMatch('2025-05-05', '12:00', [official], matchId)
     await repo.upsert(match)
@@ -187,4 +189,29 @@ test.group('LucidMatchRepository', (group) => {
     assert.lengthOf(models, 1)
     assert.deepEqual(models[0].officiels, [newOfficial])
   })
+    .setup(() => {
+      class mockTeamExisteUseCase extends TeamExisteUseCase {
+        async execute(filter: TeamExisteFilter): Promise<TeamExisteResult[]> {
+          return [{ nom: filter.nom ?? '', id: filter.id ?? '' } satisfies TeamExisteResult]
+        }
+      }
+      class mockCreateTeamUseCase extends CreateTeamUseCase {
+        async execute(payload: { nom: string }): Promise<TeamExisteResult> {
+          return { nom: payload.nom, id: 'generated-id' }
+        }
+      }
+      class mockOptimizedTeamCacheService extends OptimizedTeamCacheService {
+        async getOrCreateTeam(nom: string): Promise<TeamExisteResult> {
+          return { nom, id: 'cached-id' }
+        }
+      }
+      app.container.swap(TeamExisteUseCase, () => new mockTeamExisteUseCase())
+      app.container.swap(CreateTeamUseCase, () => new mockCreateTeamUseCase())
+      app.container.swap(OptimizedTeamCacheService, () => new mockOptimizedTeamCacheService())
+    })
+    .teardown(() => {
+      app.container.restore(TeamExisteUseCase)
+      app.container.restore(CreateTeamUseCase)
+      app.container.restore(OptimizedTeamCacheService)
+    })
 })

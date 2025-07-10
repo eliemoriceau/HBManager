@@ -16,7 +16,7 @@ export class MatchModel extends BaseModel {
   @column()
   declare heure: string
 
-  @column({ columnName: 'equipe_domicile' })
+  @column({ columnName: 'equipe_domicile_id' })
   declare equipeDomicileId: string
 
   @belongsTo(() => TeamModel, {
@@ -25,7 +25,7 @@ export class MatchModel extends BaseModel {
   })
   declare equipeDomicile: BelongsTo<typeof TeamModel>
 
-  @column({ columnName: 'equipe_exterieur' })
+  @column({ columnName: 'equipe_exterieur_id' })
   declare equipeExterieurId: string
 
   @belongsTo(() => TeamModel, { foreignKey: 'equipeExterieurId', localKey: 'id' })

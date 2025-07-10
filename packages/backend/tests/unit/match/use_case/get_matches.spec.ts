@@ -34,7 +34,7 @@ test.group('GetMatches', () => {
 
     assert.lengthOf(result, 2)
     assert.deepEqual(
-      result.map((m) => m.id.toString()),
+      result.map((m) => m.match.id.toString()),
       [match1.id.toString(), match2.id.toString()]
     )
   })
@@ -73,6 +73,6 @@ test.group('GetMatches', () => {
     })
 
     assert.lengthOf(result, 1)
-    assert.equal(result[0].id.toString(), match1.id.toString())
+    assert.equal(result[0].match.id.toString(), match1.id.toString())
   })
 })

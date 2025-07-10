@@ -15,12 +15,15 @@ export class GetMatches extends GetMatchesUseCase {
     super()
   }
 
-  async execute(_filters: GetMatchesFilter = {}): Promise<MatchDetailsDto[]> {
-    const matches = await this.matchRepository.findAll()
-    // if (Object.keys(filters).length === 0) {
-    //   return this.matchRepository.findAll()
-    // }
-    // return this.matchRepository.findByCriteria(filters)
+  async execute(filters: GetMatchesFilter = {}): Promise<MatchDetailsDto[]> {
+    let matches
+
+    if (Object.keys(filters).length === 0) {
+      matches = await this.matchRepository.findAll()
+    } else {
+      matches = await this.matchRepository.findByCriteria(filters)
+    }
+
     return matches.map((match) => matchDetailsDtoDomainsToDto(match))
   }
 }

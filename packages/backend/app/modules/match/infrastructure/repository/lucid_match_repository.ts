@@ -11,28 +11,48 @@ import { OptimizedTeamCacheService } from '#importer/service/optimized_team_cach
 import logger from '@adonisjs/core/services/logger'
 
 @inject()
-export class LucidMatchRepository implements MatchRepository {
+export class LucidMatchRepository extends MatchRepository {
   constructor(
     private readonly teamExisteUseCase: TeamExisteUseCase,
     private readonly createTeamUseCase: CreateTeamUseCase,
     private readonly teamCacheService: OptimizedTeamCacheService
-  ) {}
+  ) {
+    super()
+  }
 
   private toDomain(model: MatchModel): Match {
+    // Créer des équipes par défaut si elles ne sont pas chargées
+    const createDefaultTeam = (id: string) => {
+      return Team.create({
+        id,
+        nom: 'Équipe non spécifiée',
+      })
+    }
+
+    // Récupérer l'équipe domicile ou créer une par défaut
+    const equipeDomicile = model.equipeDomicile
+      ? Team.create({
+          id: model.equipeDomicile.id.toString(),
+          nom: model.equipeDomicile.nom,
+          codeFederal: model.equipeDomicile.codeFederal?.toString(),
+        })
+      : createDefaultTeam(model.equipeDomicileId || '')
+
+    // Récupérer l'équipe extérieure ou créer une par défaut
+    const equipeExterieur = model.equipeExterieur
+      ? Team.create({
+          id: model.equipeExterieur.id.toString(),
+          nom: model.equipeExterieur.nom,
+          codeFederal: model.equipeExterieur.codeFederal?.toString(),
+        })
+      : createDefaultTeam(model.equipeExterieurId || '')
+
     return Match.create({
       id: model.id,
       date: model.date,
       heure: model.heure,
-      equipeDomicile: Team.create({
-        id: model.equipeDomicile.id.toString(),
-        nom: model.equipeDomicile.nom,
-        codeFederal: model.equipeDomicile.codeFederal?.toString(),
-      }),
-      equipeExterieur: Team.create({
-        id: model.equipeExterieur.id.toString(),
-        nom: model.equipeExterieur.nom,
-        codeFederal: model.equipeExterieur.codeFederal?.toString(),
-      }),
+      equipeDomicile,
+      equipeExterieur,
       officiels: model.officiels,
       statut: model.statut as StatutMatch,
       codeRenc: model.codeRenc,
@@ -138,8 +158,8 @@ export class LucidMatchRepository implements MatchRepository {
         id: match.id.toString(),
         date: match.date,
         heure: match.heure,
-        equipe_domicile: equipeDomicile.at(0)?.id,
-        equipe_exterieur: equipeExterieur.at(0)?.id,
+        equipe_domicile_id: equipeDomicile.at(0)?.id,
+        equipe_exterieur_id: equipeExterieur.at(0)?.id,
         officiels: match.officiels.map((o) => o.toString()),
         statut: match.statut,
         codeRenc: match.codeRenc,
@@ -228,8 +248,8 @@ export class LucidMatchRepository implements MatchRepository {
           id: match.id.toString(),
           date: match.date,
           heure: match.heure,
-          equipe_domicile: domicileTeam.id,
-          equipe_exterieur: exterieurTeam.id,
+          equipe_domicile_id: domicileTeam.id,
+          equipe_exterieur_id: exterieurTeam.id,
           officiels: match.officiels.map((o) => o.toString()),
           statut: match.statut,
           codeRenc: match.codeRenc,

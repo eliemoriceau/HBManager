@@ -15,11 +15,13 @@ export default class extends BaseSchema {
       table.string('motif_report')
       table.integer('score_domicile')
       table.integer('score_exterieur')
-      table.string('code_renc').nullable().notNullable()
+      table.string('code_renc').notNullable()
       table.date('created_at').notNullable()
       table.date('updated_at').notNullable()
     })
   }
 
-  async down() {}
+  async down() {
+    this.schema.dropTable(this.tableName)
+  }
 }

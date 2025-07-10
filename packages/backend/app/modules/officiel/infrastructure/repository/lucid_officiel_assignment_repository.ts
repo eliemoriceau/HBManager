@@ -1,12 +1,13 @@
 import { OfficielAssignmentRepository } from '#officiel/domain/repository/officiel_assignment_repository'
 import { OfficielAssignment } from '#officiel/domain/entity/officiel_assignment'
 import OfficielAssignmentModel from '#models/officiel_assignment'
-import { LucidAssignmentRepository } from './lucid_assignment_repository'
+import { LucidAssignmentRepository } from './lucid_assignment_repository.js'
 
-export class LucidOfficielAssignmentRepository implements OfficielAssignmentRepository {
+export class LucidOfficielAssignmentRepository extends OfficielAssignmentRepository {
   private assignmentRepository: LucidAssignmentRepository
 
   constructor() {
+    super()
     this.assignmentRepository = new LucidAssignmentRepository()
   }
 

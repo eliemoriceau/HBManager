@@ -8,6 +8,13 @@ import os from 'node:os'
 import type { MultipartFile } from '@adonisjs/bodyparser'
 import { Identifier } from '#shared/domaine/identifier'
 
+// Création d'un mock directement dans le test
+class MockPerformanceMeasurementService {
+  async measureAsync<T>(operation: string, fn: () => Promise<T>): Promise<T> {
+    return await fn()
+  }
+}
+
 const csvId = Identifier.generate().toString()
 const equipeHome = '11111111-1111-1111-1111-111111111111'
 const equipeAway = '22222222-2222-2222-2222-222222222222'
@@ -21,7 +28,8 @@ test.group('UploadCsvService', () => {
   test('supprime le fichier temporaire après traitement', async ({ assert }) => {
     const matchRepo = new StubMatchRepository()
     const reportRepo = new StubImportReportRepository()
-    const service = new UploadCsvService(matchRepo, reportRepo)
+    const performanceService = new MockPerformanceMeasurementService()
+    const service = new UploadCsvService(matchRepo, reportRepo, performanceService)
 
     const tmpPath = join(os.tmpdir(), 'upload_test.csv')
     await fs.writeFile(tmpPath, csvContent)

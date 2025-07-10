@@ -4,7 +4,7 @@ import { AssignmentStatusEnum } from '#officiel/domain/value_object/assignment_s
 import { OfficielTypeEnum } from '#officiel/domain/value_object/officiel_type'
 import AssignmentModel from '#models/assignment'
 
-export class LucidAssignmentRepository implements AssignmentRepository {
+export class LucidAssignmentRepository extends AssignmentRepository {
   async findById(id: string): Promise<Assignment | null> {
     const model = await AssignmentModel.find(id)
     return model ? this.toDomain(model) : null

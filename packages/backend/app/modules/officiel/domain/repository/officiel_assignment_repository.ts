@@ -1,55 +1,55 @@
 import { OfficielAssignment } from '#officiel/domain/entity/officiel_assignment'
 
-export interface OfficielAssignmentRepository {
+export abstract class OfficielAssignmentRepository {
   /**
    * Trouve un agrégat d'assignations par son identifiant
    */
-  findById(id: string): Promise<OfficielAssignment | null>
+  abstract findById(id: string): Promise<OfficielAssignment | null>
 
   /**
    * Trouve un agrégat d'assignations par identifiant de match
    */
-  findByMatch(matchId: string): Promise<OfficielAssignment | null>
+  abstract findByMatch(matchId: string): Promise<OfficielAssignment | null>
 
   /**
    * Trouve tous les agrégats d'assignations incomplets
    */
-  findIncomplete(): Promise<OfficielAssignment[]>
+  abstract findIncomplete(): Promise<OfficielAssignment[]>
 
   /**
    * Trouve tous les agrégats d'assignations complets
    */
-  findComplete(): Promise<OfficielAssignment[]>
+  abstract findComplete(): Promise<OfficielAssignment[]>
 
   /**
    * Trouve tous les agrégats d'assignations prêts pour le match
    */
-  findReadyForMatch(): Promise<OfficielAssignment[]>
+  abstract findReadyForMatch(): Promise<OfficielAssignment[]>
 
   /**
    * Trouve tous les agrégats d'assignations par période
    */
-  findByPeriod(startDate: string, endDate: string): Promise<OfficielAssignment[]>
+  abstract findByPeriod(startDate: string, endDate: string): Promise<OfficielAssignment[]>
 
   /**
    * Vérifie si un match a des assignations
    */
-  existsForMatch(matchId: string): Promise<boolean>
+  abstract existsForMatch(matchId: string): Promise<boolean>
 
   /**
    * Sauvegarde un agrégat d'assignations
    */
-  save(officielAssignment: OfficielAssignment): Promise<void>
+  abstract save(officielAssignment: OfficielAssignment): Promise<void>
 
   /**
    * Supprime un agrégat d'assignations
    */
-  delete(id: string): Promise<void>
+  abstract delete(id: string): Promise<void>
 
   /**
    * Liste tous les agrégats d'assignations avec pagination
    */
-  findAll(
+  abstract findAll(
     page?: number,
     limit?: number
   ): Promise<{

@@ -3,7 +3,7 @@ import { Officiel } from '#officiel/domain/entity/officiel'
 import { OfficielTypeEnum } from '#officiel/domain/value_object/officiel_type'
 import OfficielModel from '#models/officiel'
 
-export class LucidOfficielRepository implements OfficielRepository {
+export class LucidOfficielRepository extends OfficielRepository {
   async findById(id: string): Promise<Officiel | null> {
     const model = await OfficielModel.find(id)
     return model ? this.toDomain(model) : null

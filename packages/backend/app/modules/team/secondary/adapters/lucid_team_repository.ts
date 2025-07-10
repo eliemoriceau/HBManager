@@ -3,8 +3,9 @@ import { TeamRepository } from '#team/secondary/ports/team_repository'
 import { TeamModel } from '#team/secondary/infrastructure/models/team'
 import { DatabaseConnectionException } from '#exceptions/database_connection_exception'
 import { TeamExisteFilter } from '#team/use_case/team_by_filter_use_case'
+import { Identifier } from '#shared/domaine/identifier'
 
-export class LucidTeamRepository implements TeamRepository {
+export class LucidTeamRepository extends TeamRepository {
   private toDomain(model: TeamModel): Team {
     return Team.create({
       id: model.id,
@@ -75,10 +76,14 @@ export class LucidTeamRepository implements TeamRepository {
 
   async create(team: Team): Promise<void> {
     try {
+      // Générer un code fédéral unique si vide ou null
+      const codeFederal =
+        team.codeFederal?.toString() || `gen_${Identifier.generate().toString().substring(0, 8)}`
+
       await TeamModel.create({
         id: team.id.toString(),
         nom: team.nom.toString(),
-        codeFederal: team.codeFederal?.toString(),
+        codeFederal,
         logo: team.logo ?? null,
       })
     } catch (error) {
@@ -94,7 +99,8 @@ export class LucidTeamRepository implements TeamRepository {
     try {
       const model = await TeamModel.findOrFail(team.id.toString(), { client: trx })
       model.nom = team.nom.toString()
-      model.codeFederal = team.codeFederal?.toString()
+      model.codeFederal =
+        team.codeFederal?.toString() || `gen_${Identifier.generate().toString().substring(0, 8)}`
       model.logo = team.logo ?? null
       await model.save()
       await trx.commit()
@@ -111,6 +117,55 @@ export class LucidTeamRepository implements TeamRepository {
     try {
       await TeamModel.query().where('id', id).delete()
     } catch (error) {
+      if (error && ['ECONNREFUSED', 'ENOTFOUND'].includes((error as any).code)) {
+        throw new DatabaseConnectionException()
+      }
+      throw error
+    }
+  }
+
+  async findTeamsByNames(names: string[]): Promise<Map<string, Team>> {
+    try {
+      const lowerNames = names.map((name) => name.toLowerCase())
+      const models = await TeamModel.query().whereRaw('LOWER(nom) IN (?)', [lowerNames])
+      const result = new Map<string, Team>()
+
+      for (const model of models) {
+        const teamName = model.nom.toLowerCase()
+        result.set(teamName, this.toDomain(model))
+      }
+
+      return result
+    } catch (error) {
+      if (error && ['ECONNREFUSED', 'ENOTFOUND'].includes((error as any).code)) {
+        throw new DatabaseConnectionException()
+      }
+      throw error
+    }
+  }
+
+  async createBatch(teams: Team[]): Promise<void> {
+    if (teams.length === 0) return
+
+    const trx = await TeamModel.transaction()
+    try {
+      const data = teams.map((team) => {
+        // Générer un code fédéral unique si vide ou null
+        const codeFederal =
+          team.codeFederal?.toString() || `gen_${Identifier.generate().toString().substring(0, 8)}`
+
+        return {
+          id: team.id.toString(),
+          nom: team.nom.toString(),
+          codeFederal,
+          logo: team.logo ?? null,
+        }
+      })
+
+      await TeamModel.createMany(data, { client: trx })
+      await trx.commit()
+    } catch (error) {
+      await trx.rollback()
       if (error && ['ECONNREFUSED', 'ENOTFOUND'].includes((error as any).code)) {
         throw new DatabaseConnectionException()
       }

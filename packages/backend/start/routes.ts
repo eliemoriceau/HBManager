@@ -20,6 +20,8 @@ const getTeamsController = () => import('#team/primary/http/get_teams_controller
 const createTeamController = () => import('#team/primary/http/create_team_controller')
 const updateTeamController = () => import('#team/primary/http/update_team_controller')
 const deleteTeamController = () => import('#team/primary/http/delete_team_controller')
+const officielsController = () => import('#controllers/officiels_controller')
+const assignmentsController = () => import('#controllers/assignments_controller')
 
 router.post('/api/auth/register', [registerController])
 
@@ -46,3 +48,14 @@ router.get('/api/equipes', [getTeamsController])
 router.post('/api/equipes', [createTeamController])
 router.put('/api/equipes/:id', [updateTeamController])
 router.delete('/api/equipes/:id', [deleteTeamController])
+
+// Routes pour les officiels
+router.post('/api/officiels', [officielsController, 'store'])
+router.get('/api/officiels/available', [officielsController, 'findAvailable'])
+
+// Routes pour les assignations
+router.post('/api/assignments', [assignmentsController, 'assignOfficiel'])
+router.post('/api/assignments/federation', [assignmentsController, 'assignArbitreFromFederation'])
+router.post('/api/assignments/club', [assignmentsController, 'assignArbitreFromClub'])
+router.post('/api/assignments/:id/confirm', [assignmentsController, 'confirm'])
+router.get('/api/matches/:matchId/assignments', [assignmentsController, 'getMatchAssignments'])

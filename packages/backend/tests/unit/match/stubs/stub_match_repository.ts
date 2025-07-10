@@ -1,8 +1,10 @@
 import Match from '#match/domain/entity/match'
 import { MatchRepository, MatchSearchCriteria } from '#match/domain/repository/match_repository'
 
-export class StubMatchRepository implements MatchRepository {
-  constructor(private matches: Match[] = []) {}
+export class StubMatchRepository extends MatchRepository {
+  constructor(private matches: Match[] = []) {
+    super()
+  }
 
   async findAll(): Promise<Match[]> {
     return [...this.matches]

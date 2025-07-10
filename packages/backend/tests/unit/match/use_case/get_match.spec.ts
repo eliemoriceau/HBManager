@@ -9,13 +9,13 @@ import { DateTime } from 'luxon'
 const equipeHome = '11111111-1111-1111-1111-111111111111'
 const equipeAway = '22222222-2222-2222-2222-222222222222'
 
-function createMatch() {
+function createMatch(teamHome, teamAway) {
   return Match.create({
     codeRenc: 'CR1',
     date: DateTime.fromISO('2025-01-01'),
     heure: '12:00',
-    equipeDomicile: equipeHome,
-    equipeExterieur: equipeAway,
+    equipeDomicile: teamHome,
+    equipeExterieur: teamAway,
     officiels: [],
   })
 }
@@ -26,9 +26,9 @@ function createTeam(id: string, name: string, code: string) {
 
 test.group('GetMatch', () => {
   test('returns match with teams', async ({ assert }) => {
-    const match = createMatch()
     const teamHome = createTeam(equipeHome, 'Home', 'C1')
     const teamAway = createTeam(equipeAway, 'Away', 'C2')
+    const match = createMatch(teamHome, teamAway)
     const matchRepo = new StubMatchRepository([match])
     const teamRepo = new StubTeamRepository([teamHome, teamAway])
     const useCase = new GetMatch(matchRepo, teamRepo)
@@ -36,7 +36,7 @@ test.group('GetMatch', () => {
     const res = await useCase.execute(match.id.toString())
 
     assert.equal(res.match.id.toString(), match.id.toString())
-    assert.equal(res.equipeDomicile.id.toString(), equipeHome)
-    assert.equal(res.equipeExterieur.id.toString(), equipeAway)
+    assert.equal(res.match.equipeDomicile.id, equipeHome)
+    assert.equal(res.match.equipeExterieur.id, equipeAway)
   })
 })
