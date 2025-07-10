@@ -1,18 +1,43 @@
-# frontend
+# Handball Manager Frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+Frontend for the Handball Manager application built with Vue 3 and Tailwind CSS v4.
+
+## Intégration Tailwind CSS v4
+
+L'intégration de Tailwind CSS v4 a été réalisée avec succès. Voici les étapes effectuées :
+
+1. Installation des dépendances :
+   ```
+   yarn add tailwindcss@4.0.0-alpha.16 postcss@^8.4.32 autoprefixer@^10.4.16 postcss-nesting@^13.0.2 -D
+   ```
+
+2. Configuration de Tailwind CSS :
+   - Création du fichier `tailwind.config.js`
+   - Configuration du PostCSS dans `postcss.config.cjs`
+   - Ajout des directives Tailwind dans les fichiers CSS
+
+3. Création de composants UI réutilisables :
+   - Button : boutons avec variantes, tailles et états
+   - Card : cartes avec en-têtes et pieds de page optionnels
+   - Badge : badges pour les indicateurs de statut
+   - Input : champs de formulaire avec états de validation
+   - Alert : alertes pour les notifications
+
+4. Mise à jour du layout principal pour utiliser Tailwind CSS
+
+5. Création d'une page de démonstration des composants UI à `/ui-components`
+
+## Utilisation
+
+Pour voir les composants UI implémentés, démarrez le serveur de développement et accédez à la route `/ui-components` :
+
+```sh
+yarn dev
+```
 
 ## Recommended IDE Setup
 
 [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
 
 ## Project Setup
 
@@ -36,25 +61,6 @@ yarn build
 
 ```sh
 yarn test:unit
-```
-
-### Run End-to-End Tests with [Playwright](https://playwright.dev)
-
-```sh
-# Install browsers for the first run
-npx playwright install
-
-# When testing on CI, must build the project first
-yarn build
-
-# Runs the end-to-end tests
-yarn test:e2e
-# Runs the tests only on Chromium
-yarn test:e2e --project=chromium
-# Runs the tests of a specific file
-yarn test:e2e tests/example.spec.ts
-# Runs the tests in debug mode
-yarn test:e2e --debug
 ```
 
 ### Lint with [ESLint](https://eslint.org/)
