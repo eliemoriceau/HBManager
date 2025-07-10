@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
+import { computed } from 'vue'
+import { useAuthStore } from './auth/store/authStore'
 import HelloWorld from './components/HelloWorld.vue'
+import UserMenu from './auth/presentation/components/UserMenu.vue'
+
+const authStore = useAuthStore()
+const isAuthenticated = computed(() => authStore.isAuthenticated)
 </script>
 
 <template>
@@ -13,26 +19,49 @@ import HelloWorld from './components/HelloWorld.vue'
             <HelloWorld msg="Handball Manager" />
           </div>
 
-          <nav class="flex space-x-6">
-            <RouterLink
-              to="/"
-              class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium"
-            >
-              Home
-            </RouterLink>
-            <RouterLink
-              to="/about"
-              class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium"
-            >
-              About
-            </RouterLink>
-            <RouterLink
-              to="/ui-components"
-              class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium"
-            >
-              UI Components
-            </RouterLink>
-          </nav>
+          <div class="flex items-center">
+            <nav class="flex space-x-6 mr-6">
+              <RouterLink
+                to="/"
+                class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium"
+              >
+                Home
+              </RouterLink>
+              <RouterLink
+                to="/about"
+                class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium"
+              >
+                About
+              </RouterLink>
+              <RouterLink
+                to="/ui-components"
+                class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium"
+              >
+                UI Components
+              </RouterLink>
+            </nav>
+
+            <!-- Authentication -->
+            <template v-if="isAuthenticated">
+              <UserMenu />
+            </template>
+            <template v-else>
+              <div class="flex space-x-3">
+                <RouterLink
+                  to="/login"
+                  class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400"
+                >
+                  Login
+                </RouterLink>
+                <RouterLink
+                  to="/register"
+                  class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md"
+                >
+                  Register
+                </RouterLink>
+              </div>
+            </template>
+          </div>
         </div>
       </div>
     </header>
