@@ -1,12 +1,12 @@
-import { UserRepository } from '../domain/repository/UserRepository'
-import { AuthResult, User, UserCredentials, UserRegistrationData } from '../domain/model/User'
+import type { UserRepository } from '@/auth/domain/repository/UserRepository'
+import type { AuthResult, User, UserCredentials, UserRegistrationData } from '@/auth/domain'
 
 /**
  * API implementation of the UserRepository interface
  * This is an adapter in the Hexagonal Architecture that connects to the backend API
  */
 export class ApiUserRepository implements UserRepository {
-  private apiBaseUrl: string = '/api/auth' // This would be configured from environment
+  private apiBaseUrl: string = 'http://localhost:3333/api/auth' // This would be configured from environment
 
   /**
    * Authenticate a user with the API
@@ -41,6 +41,7 @@ export class ApiUserRepository implements UserRepository {
    */
   async register(data: UserRegistrationData): Promise<AuthResult> {
     try {
+      console.log('Registration data:', data)
       const response = await fetch(`${this.apiBaseUrl}/register`, {
         method: 'POST',
         headers: {
@@ -49,9 +50,22 @@ export class ApiUserRepository implements UserRepository {
         body: JSON.stringify(data),
       })
 
+      // Check if we can parse the response as JSON
+      const contentType = response.headers.get('content-type')
+      const hasJsonContent = contentType && contentType.includes('application/json')
+      console.log('Registration response:', response)
+
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.message || 'Registration failed')
+        if (hasJsonContent) {
+          const errorData = await response.json()
+          throw new Error(errorData.message || 'Registration failed')
+        } else {
+          throw new Error(`Registration failed: ${response.statusText}`)
+        }
+      }
+
+      if (!hasJsonContent) {
+        throw new Error('Server returned non-JSON response')
       }
 
       const responseData = await response.json()
@@ -160,12 +174,7 @@ export class ApiUserRepository implements UserRepository {
     return {
       id: data.id,
       email: data.email,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      roles: data.roles,
-      isActive: data.isActive,
-      createdAt: new Date(data.createdAt),
-      updatedAt: new Date(data.updatedAt),
+      roles: data.roles || [],
     }
   }
 }

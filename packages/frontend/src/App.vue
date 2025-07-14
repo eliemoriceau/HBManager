@@ -7,6 +7,7 @@ import UserMenu from './auth/presentation/components/UserMenu.vue'
 
 const authStore = useAuthStore()
 const isAuthenticated = computed(() => authStore.isAuthenticated)
+const hasSecretaryRole = computed(() => authStore.hasRole('SECRETAIRE'))
 </script>
 
 <template>
@@ -38,6 +39,15 @@ const isAuthenticated = computed(() => authStore.isAuthenticated)
                 class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium"
               >
                 UI Components
+              </RouterLink>
+
+              <!-- CSV Upload link (only visible to secretaries) -->
+              <RouterLink
+                v-if="isAuthenticated && hasSecretaryRole"
+                to="/csv-uploads"
+                class="text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium"
+              >
+                CSV Upload
               </RouterLink>
             </nav>
 

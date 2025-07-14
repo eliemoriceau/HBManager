@@ -66,13 +66,13 @@ test.group('LucidMatchRepository', (group) => {
     assert.lengthOf(res, 2)
   })
     .setup(() => {
-      class mockTeamExisteUseCase extends TeamExisteUseCase {
+      class MockTeamExisteUseCase extends TeamExisteUseCase {
         async execute(filter: TeamExisteFilter): Promise<TeamExisteResult[]> {
           return [{ nom: filter.nom ?? '', id: filter.id ?? '' } satisfies TeamExisteResult]
         }
       }
       app.container.swap(TeamExisteUseCase, () => {
-        return new mockTeamExisteUseCase()
+        return new MockTeamExisteUseCase()
       })
     })
     .teardown(() => {
@@ -108,13 +108,13 @@ test.group('LucidMatchRepository', (group) => {
       app.container.restore(TeamExisteUseCase)
     })
     .setup(() => {
-      class mockTeamExisteUseCase extends TeamExisteUseCase {
+      class MockTeamExisteUseCase extends TeamExisteUseCase {
         async execute(filter: TeamExisteFilter): Promise<TeamExisteResult[]> {
           return [{ nom: filter.nom ?? '', id: filter.id ?? '' } satisfies TeamExisteResult]
         }
       }
       app.container.swap(TeamExisteUseCase, () => {
-        return new mockTeamExisteUseCase()
+        return new MockTeamExisteUseCase()
       })
     })
     .teardown(() => {
@@ -190,24 +190,24 @@ test.group('LucidMatchRepository', (group) => {
     assert.deepEqual(models[0].officiels, [newOfficial])
   })
     .setup(() => {
-      class mockTeamExisteUseCase extends TeamExisteUseCase {
+      class MockTeamExisteUseCase extends TeamExisteUseCase {
         async execute(filter: TeamExisteFilter): Promise<TeamExisteResult[]> {
           return [{ nom: filter.nom ?? '', id: filter.id ?? '' } satisfies TeamExisteResult]
         }
       }
-      class mockCreateTeamUseCase extends CreateTeamUseCase {
+      class MockCreateTeamUseCase extends CreateTeamUseCase {
         async execute(payload: { nom: string }): Promise<TeamExisteResult> {
           return { nom: payload.nom, id: 'generated-id' }
         }
       }
-      class mockOptimizedTeamCacheService extends OptimizedTeamCacheService {
+      class MockOptimizedTeamCacheService extends OptimizedTeamCacheService {
         async getOrCreateTeam(nom: string): Promise<TeamExisteResult> {
           return { nom, id: 'cached-id' }
         }
       }
-      app.container.swap(TeamExisteUseCase, () => new mockTeamExisteUseCase())
-      app.container.swap(CreateTeamUseCase, () => new mockCreateTeamUseCase())
-      app.container.swap(OptimizedTeamCacheService, () => new mockOptimizedTeamCacheService())
+      app.container.swap(TeamExisteUseCase, () => new MockTeamExisteUseCase())
+      app.container.swap(CreateTeamUseCase, () => new MockCreateTeamUseCase())
+      app.container.swap(OptimizedTeamCacheService, () => new MockOptimizedTeamCacheService())
     })
     .teardown(() => {
       app.container.restore(TeamExisteUseCase)

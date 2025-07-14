@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import { redirectIfAuthenticated, requireAuth } from '../auth/presentation/guards/authGuard'
+import { requireSecretaryRole } from '../csvUpload/presentation/guards/secretaryGuard'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -36,6 +37,21 @@ const router = createRouter({
       name: 'register',
       component: () => import('../auth/presentation/views/RegisterView.vue'),
       beforeEnter: redirectIfAuthenticated,
+    },
+    // CSV Upload routes (require SECRETAIRE role)
+    {
+      path: '/csv-uploads',
+      name: 'csv-uploads',
+      component: () => import('../csvUpload/presentation/views/CsvUploadView.vue'),
+      beforeEnter: requireSecretaryRole,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/csv-uploads/:id',
+      name: 'csv-upload-details',
+      component: () => import('../csvUpload/presentation/views/CsvUploadDetailsView.vue'),
+      beforeEnter: requireSecretaryRole,
+      meta: { requiresAuth: true },
     },
     // 404 Not Found route
     {

@@ -1,4 +1,4 @@
-import { AuthResult, User, UserCredentials, UserRegistrationData } from '../model/User'
+import type { AuthResult, User, UserCredentials, UserRegistrationData } from '@/auth/domain'
 
 /**
  * Repository interface for User entity in the Authentication bounded context

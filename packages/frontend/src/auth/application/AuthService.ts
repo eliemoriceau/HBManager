@@ -1,5 +1,5 @@
-import { UserRepository } from '../domain/repository/UserRepository'
-import { AuthResult, User, UserCredentials, UserRegistrationData } from '../domain/model/User'
+import type { UserRepository } from '@/auth/domain/repository/UserRepository'
+import type { AuthResult, User, UserCredentials, UserRegistrationData } from '@/auth/domain'
 
 /**
  * Authentication service that implements use cases for the Authentication bounded context

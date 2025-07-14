@@ -2,6 +2,7 @@ import { RegisterUserUseCase } from '#auth/use_case/register_user_use_case'
 import type { HttpContext } from '@adonisjs/core/http'
 import { inject } from '@adonisjs/core'
 import { registerValidator } from '#auth/primary/http/register_validator'
+import { EmailAlreadyExistsException } from '#auth/exceptions/email_already_exists_exception'
 
 @inject()
 export default class RegisterController {
@@ -16,8 +17,8 @@ export default class RegisterController {
         email: user.email.toString(),
         roles: user.roles,
       })
-    } catch (error) {
-      if (error.name === 'EmailAlreadyExistsException') {
+    } catch (error: unknown) {
+      if (error instanceof EmailAlreadyExistsException) {
         return response.badRequest({ error: error.message })
       }
       throw error

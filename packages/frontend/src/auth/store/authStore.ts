@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { AuthService } from '../application/AuthService'
 import { ApiUserRepository } from '../infrastructure/ApiUserRepository'
-import { User, UserCredentials, UserRegistrationData } from '../domain/model/User'
+import type { User, UserCredentials, UserRegistrationData } from '@/auth/domain'
 
 // Create repository and service instances
 const userRepository = new ApiUserRepository()
@@ -25,7 +25,8 @@ export const useAuthStore = defineStore('auth', () => {
 
   const fullName = computed(() => {
     if (!user.value) return ''
-    return `${user.value.firstName} ${user.value.lastName}`
+    // Le modèle User n'a plus les propriétés firstName et lastName
+    return user.value.email
   })
 
   const hasRole = computed(() => {

@@ -13,7 +13,6 @@ L'intégration de Tailwind CSS v4 a été réalisée avec succès. Voici les ét
 
 2. Configuration de Tailwind CSS :
    - Création du fichier `tailwind.config.js`
-   - Configuration du PostCSS dans `postcss.config.cjs`
    - Ajout des directives Tailwind dans les fichiers CSS
 
 3. Création de composants UI réutilisables :

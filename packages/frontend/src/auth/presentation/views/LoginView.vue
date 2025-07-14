@@ -6,7 +6,7 @@ import Card from '../../../components/ui/Card.vue'
 import Input from '../../../components/ui/Input.vue'
 import Button from '../../../components/ui/Button.vue'
 import Alert from '../../../components/ui/Alert.vue'
-import { UserCredentials } from '../../domain/model/User'
+import type { UserCredentials } from '@/auth/domain'
 
 const router = useRouter()
 const authStore = useAuthStore()

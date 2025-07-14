@@ -1,5 +1,5 @@
-import { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
 import { useAuthStore } from '../../store/authStore'
+import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
 
 /**
  * Authentication guard for Vue Router

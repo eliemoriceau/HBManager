@@ -209,13 +209,13 @@ export class PerformanceMeasurementService {
    * Exporte les métriques au format JSON
    */
   exportMetrics(): string {
-    const export_data = {
+    const exportData = {
       timestamp: new Date().toISOString(),
       stats: this.getAllStats(),
       rawMetrics: Object.fromEntries(this.metrics),
     }
 
-    return JSON.stringify(export_data, null, 2)
+    return JSON.stringify(exportData, null, 2)
   }
 
   /**

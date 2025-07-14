@@ -10,6 +10,7 @@ import { ImportReportRepository } from '#importer/secondary/ports/import_report_
 import { MatchRepository } from '#match/domain/repository/match_repository'
 import { PerformanceMeasurementService } from './performance_measurement_service.js'
 import { promises as fs } from 'node:fs'
+import Match from '#match/domain/entity/match'
 
 const REQUIRED_HEADERS = ['code renc', 'le', 'horaire', 'club rec', 'club vis', 'nom salle']
 
@@ -37,12 +38,12 @@ export class UploadCsvService extends UploadCsvUseCase {
           'file_reading',
           async () => {
             const fileBuffer = await fs.readFile(file.tmpPath)
-            const fileContentUtf8 = fileBuffer.toString('utf8')
-            const lines = fileContentUtf8
+            const content = fileBuffer.toString('utf8')
+            const lineArray = content
               .split(/\r?\n/)
               .slice(1)
               .filter((l) => l.trim().length > 0)
-            return { fileContentUtf8, lines }
+            return { fileContentUtf8: content, lines: lineArray }
           }
         )
 
@@ -64,55 +65,56 @@ export class UploadCsvService extends UploadCsvUseCase {
             }
           )
 
-          const { validMatches, ignoredRecords } = await this.performanceService.measureAsync(
-            'records_processing',
-            async () => {
-              const validMatches: Match[] = []
-              const ignoredRecords: Array<{ index: number; line: any; error: string }> = []
+          const { processedMatches, processedIgnoredRecords } =
+            await this.performanceService.measureAsync(
+              'records_processing',
+              async () => {
+                const matchResults: Match[] = []
+                const ignoredResults: Array<{ index: number; line: any; error: string }> = []
 
-              // Traitement et validation de tous les enregistrements
-              for (const [index, line] of records.entries()) {
-                try {
-                  const match = MatchFactory.fromCsvLine(line)
-                  const isUpdate = existingCodes.has(match.codeRenc)
+                // Traitement et validation de tous les enregistrements
+                for (const [index, line] of records.entries()) {
+                  try {
+                    const match = MatchFactory.fromCsvLine(line)
+                    const isUpdate = existingCodes.has(match.codeRenc)
 
-                  validMatches.push(match)
-                  ImportReportBuilder.addImported(report, isUpdate)
+                    matchResults.push(match)
+                    ImportReportBuilder.addImported(report, isUpdate)
 
-                  if (!isUpdate) {
-                    existingCodes.add(match.codeRenc)
+                    if (!isUpdate) {
+                      existingCodes.add(match.codeRenc)
+                    }
+                  } catch (error) {
+                    const errorRecord = {
+                      index: index + 2,
+                      line,
+                      error: (error as Error).message,
+                    }
+                    ignoredResults.push(errorRecord)
+                    ImportReportBuilder.addIgnored(
+                      report,
+                      errorRecord.index,
+                      errorRecord.line,
+                      errorRecord.error
+                    )
                   }
-                } catch (error) {
-                  const errorRecord = {
-                    index: index + 2,
-                    line,
-                    error: (error as Error).message,
-                  }
-                  ignoredRecords.push(errorRecord)
-                  ImportReportBuilder.addIgnored(
-                    report,
-                    errorRecord.index,
-                    errorRecord.line,
-                    errorRecord.error
-                  )
                 }
-              }
 
-              return { validMatches, ignoredRecords }
-            },
-            { totalRecords: records.length }
-          )
+                return { processedMatches: matchResults, processedIgnoredRecords: ignoredResults }
+              },
+              { totalRecords: records.length }
+            )
 
           // Traitement en lot des matchs valides
-          if (validMatches.length > 0) {
+          if (processedMatches.length > 0) {
             await this.performanceService.measureAsync(
               'batch_upsert',
               async () => {
-                await this.matchRepository.upsertBatch(validMatches)
+                await this.matchRepository.upsertBatch(processedMatches)
               },
               {
-                validMatchCount: validMatches.length,
-                ignoredRecordCount: ignoredRecords.length,
+                validMatchCount: processedMatches.length,
+                ignoredRecordCount: processedIgnoredRecords.length,
               }
             )
           }
