@@ -2,10 +2,10 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../store/authStore'
-import Card from '../../../components/ui/Card.vue'
-import Input from '../../../components/ui/Input.vue'
-import Button from '../../../components/ui/Button.vue'
-import Alert from '../../../components/ui/Alert.vue'
+import AppCard from '../../../presentation/components/ui/AppCard.vue'
+import AppInput from '../../../presentation/components/ui/AppInput.vue'
+import AppButton from '../../../presentation/components/ui/AppButton.vue'
+import AppAlert from '../../../presentation/components/ui/AppAlert.vue'
 import type { UserRegistrationData } from '@/auth/domain'
 
 const router = useRouter()
@@ -115,14 +115,14 @@ const handleSubmit = async () => {
         <h2 class="mt-2 text-xl text-gray-600 dark:text-gray-400">Create your account</h2>
       </div>
 
-      <Card>
-        <Alert v-if="formError" variant="error" dismissible @dismiss="formError = ''">
+      <AppCard>
+        <AppAlert v-if="formError" variant="error" dismissible @dismiss="formError = ''">
           {{ formError }}
-        </Alert>
+        </AppAlert>
 
         <form @submit.prevent="handleSubmit" class="space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
+            <AppInput
               v-model="registrationData.firstName"
               label="First Name"
               placeholder="John"
@@ -130,7 +130,7 @@ const handleSubmit = async () => {
               required
             />
 
-            <Input
+            <AppInput
               v-model="registrationData.lastName"
               label="Last Name"
               placeholder="Doe"
@@ -139,7 +139,7 @@ const handleSubmit = async () => {
             />
           </div>
 
-          <Input
+          <AppInput
             v-model="registrationData.email"
             label="Email Address"
             type="email"
@@ -148,7 +148,7 @@ const handleSubmit = async () => {
             required
           />
 
-          <Input
+          <AppInput
             v-model="registrationData.password"
             label="Password"
             type="password"
@@ -157,7 +157,7 @@ const handleSubmit = async () => {
             required
           />
 
-          <Input
+          <AppInput
             v-model="confirmPassword"
             label="Confirm Password"
             type="password"
@@ -167,42 +167,26 @@ const handleSubmit = async () => {
           />
 
           <div class="flex items-center">
-            <input
+            <UCheckbox
               id="terms"
               name="terms"
-              type="checkbox"
               required
-              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              label="I agree to the Terms of Service and Privacy Policy"
             />
-            <label for="terms" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-              I agree to the
-              <a href="#" class="text-blue-600 hover:text-blue-500 dark:text-blue-400"
-                >Terms of Service</a
-              >
-              and
-              <a href="#" class="text-blue-600 hover:text-blue-500 dark:text-blue-400"
-                >Privacy Policy</a
-              >
-            </label>
           </div>
 
-          <Button type="submit" variant="primary" size="lg" :disabled="isSubmitting" class="w-full">
+          <AppButton type="submit" variant="primary" size="lg" :disabled="isSubmitting" block>
             {{ isSubmitting ? 'Creating account...' : 'Create account' }}
-          </Button>
+          </AppButton>
 
           <div class="text-center mt-4">
             <p class="text-sm text-gray-600 dark:text-gray-400">
               Already have an account?
-              <router-link
-                to="/login"
-                class="text-blue-600 hover:text-blue-500 dark:text-blue-400 font-medium"
-              >
-                Sign in
-              </router-link>
+              <UButton variant="link" to="/login" class="font-medium"> Sign in </UButton>
             </p>
           </div>
         </form>
-      </Card>
+      </AppCard>
     </div>
   </div>
 </template>

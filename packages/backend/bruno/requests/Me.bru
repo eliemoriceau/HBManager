@@ -1,0 +1,20 @@
+meta {
+  name: Me
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/api/auth/me
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+docs {
+  title: "Récupérer l'utilisateur courant"
+  description: "Récupère les informations de l'utilisateur authentifié à partir du token JWT"
+}

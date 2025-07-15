@@ -2,10 +2,10 @@
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../store/authStore'
-import Card from '../../../components/ui/Card.vue'
-import Input from '../../../components/ui/Input.vue'
-import Button from '../../../components/ui/Button.vue'
-import Alert from '../../../components/ui/Alert.vue'
+import AppCard from '../../../presentation/components/ui/AppCard.vue'
+import AppInput from '../../../presentation/components/ui/AppInput.vue'
+import AppButton from '../../../presentation/components/ui/AppButton.vue'
+import AppAlert from '../../../presentation/components/ui/AppAlert.vue'
 import type { UserCredentials } from '@/auth/domain'
 
 const router = useRouter()
@@ -73,22 +73,20 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <div
-    class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8"
-  >
+  <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full">
       <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Handball Manager</h1>
+        <h1 class="text-3xl font-bold">Handball Manager</h1>
         <h2 class="mt-2 text-xl text-gray-600 dark:text-gray-400">Sign in to your account</h2>
       </div>
 
-      <Card>
-        <Alert v-if="formError" variant="error" dismissible @dismiss="formError = ''">
+      <AppCard>
+        <AppAlert v-if="formError" variant="error" dismissible @dismiss="formError = ''">
           {{ formError }}
-        </Alert>
+        </AppAlert>
 
         <form @submit.prevent="handleSubmit" class="space-y-6">
-          <Input
+          <AppInput
             v-model="credentials.email"
             label="Email Address"
             type="email"
@@ -97,7 +95,7 @@ const handleSubmit = async () => {
             required
           />
 
-          <Input
+          <AppInput
             v-model="credentials.password"
             label="Password"
             type="password"
@@ -107,42 +105,32 @@ const handleSubmit = async () => {
           />
 
           <div class="flex items-center justify-between">
-            <div class="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label for="remember-me" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                Remember me
-              </label>
-            </div>
+            <UCheckbox name="remember-me" label="Remember me" />
 
-            <div class="text-sm">
-              <a href="#" class="text-blue-600 hover:text-blue-500 dark:text-blue-400">
-                Forgot your password?
-              </a>
-            </div>
+            <UButton variant="link" to="#" size="xs"> Forgot your password? </UButton>
           </div>
 
-          <Button type="submit" variant="primary" size="lg" :disabled="isSubmitting" class="w-full">
+          <AppButton
+            type="submit"
+            variant="primary"
+            size="lg"
+            :disabled="isSubmitting"
+            :loading="isSubmitting"
+            block
+          >
             {{ isSubmitting ? 'Signing in...' : 'Sign in' }}
-          </Button>
+          </AppButton>
 
           <div class="text-center mt-4">
             <p class="text-sm text-gray-600 dark:text-gray-400">
               Don't have an account?
-              <router-link
-                to="/register"
-                class="text-blue-600 hover:text-blue-500 dark:text-blue-400 font-medium"
-              >
+              <UButton variant="link" to="/register" class="font-medium">
                 Create an account
-              </router-link>
+              </UButton>
             </p>
           </div>
         </form>
-      </Card>
+      </AppCard>
     </div>
   </div>
 </template>

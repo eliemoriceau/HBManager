@@ -13,6 +13,7 @@ import { middleware } from '#start/kernel'
 
 const loginController = () => import('#auth/primary/http/login_controller')
 const registerController = () => import('#auth/primary/http/register_controller')
+const meController = () => import('#auth/primary/http/me_controller')
 const getMatchesController = () => import('#match/infrastructure/http/get_matches_controller')
 const getMatchController = () => import('#match/infrastructure/http/get_match_controller')
 const uploadCsvController = () => import('#importer/primary/http/upload_csv_controller')
@@ -26,6 +27,8 @@ const assignmentsController = () => import('#controllers/assignments_controller'
 router.post('/api/auth/register', [registerController])
 
 router.post('/api/auth/login', [loginController])
+
+router.get('/api/auth/me', [meController])
 
 router.get('/', async () => {
   return {
