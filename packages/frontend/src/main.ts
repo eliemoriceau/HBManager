@@ -2,14 +2,15 @@ import './assets/main.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import { createUI } from '@nuxt/ui'
+// Import tout le module UI d'abord
+import ui from '@nuxt/ui/vue-plugin'
 
 import App from './App.vue'
 import router from './router'
-import uiConfig from '../ui.config'
 
 const app = createApp(App)
-const ui = createUI(uiConfig)
+// Utiliser createUI depuis le module importé
+// const ui = NuxtUI.createUI(uiConfig)
 
 app.use(createPinia())
 app.use(router)
