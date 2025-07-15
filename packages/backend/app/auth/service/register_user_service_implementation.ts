@@ -5,17 +5,20 @@ import User from '#auth/domain/user'
 import { EmailAlreadyExistsException } from '#auth/exceptions/email_already_exists_exception'
 import { Role } from '#auth/domain/role'
 import { inject } from '@adonisjs/core'
+import { AuthenticationResult } from '#auth/use_case/login_user_use_case'
+import TokenProvider, { TokenPayload } from '#auth/secondary/ports/token_provider'
 
 @inject()
 export class RegisterUserService extends RegisterUserUseCase {
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly passwordHasher: PasswordHasher
+    private readonly passwordHasher: PasswordHasher,
+    private readonly tokenProvider: TokenProvider
   ) {
     super()
   }
 
-  async execute(email: string, plainPassword: string): Promise<User> {
+  async execute(email: string, plainPassword: string): Promise<AuthenticationResult> {
     if (await this.userRepository.exists(email)) {
       throw new EmailAlreadyExistsException(email)
     }
@@ -24,6 +27,21 @@ export class RegisterUserService extends RegisterUserUseCase {
     const user = User.create({ email: email, password: hashedPassword, roles: [Role.GUEST] })
 
     await this.userRepository.save(user)
-    return user
+
+    const payload: TokenPayload = {
+      sub: user.email.toString(),
+      roles: user.roles,
+    }
+
+    const token = this.tokenProvider.generate(payload)
+
+    return {
+      token,
+      user: {
+        id: user.id.toString(),
+        email: user.email.toString(),
+        roles: user.roles,
+      },
+    }
   }
 }

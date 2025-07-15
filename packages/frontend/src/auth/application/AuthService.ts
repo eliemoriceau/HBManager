@@ -91,8 +91,21 @@ export class AuthService {
    */
   private storeTokens(authResult: AuthResult): void {
     localStorage.setItem('auth_token', authResult.token)
-    localStorage.setItem('auth_refresh_token', authResult.refreshToken)
-    localStorage.setItem('auth_expires_at', authResult.expiresAt.toISOString())
+
+    // Gérer le cas où refreshToken n'est pas disponible
+    if (authResult.refreshToken) {
+      localStorage.setItem('auth_refresh_token', authResult.refreshToken)
+    }
+
+    // Gérer le cas où expiresAt n'est pas disponible
+    if (authResult.expiresAt) {
+      localStorage.setItem('auth_expires_at', authResult.expiresAt.toISOString())
+    } else {
+      // Définir une expiration par défaut (24 heures)
+      const defaultExpiration = new Date()
+      defaultExpiration.setHours(defaultExpiration.getHours() + 24)
+      localStorage.setItem('auth_expires_at', defaultExpiration.toISOString())
+    }
   }
 
   /**

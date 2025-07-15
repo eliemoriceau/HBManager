@@ -46,6 +46,6 @@ export interface UserRegistrationData {
 export interface AuthResult {
   user: User
   token: string
-  refreshToken: string
-  expiresAt: Date
+  refreshToken?: string
+  expiresAt?: Date
 }

@@ -69,6 +69,7 @@ export class ApiUserRepository implements UserRepository {
       }
 
       const responseData = await response.json()
+      console.log('Registration response data:', responseData)
       return this.mapToAuthResult(responseData)
     } catch (error) {
       console.error('Registration error:', error)
@@ -159,11 +160,21 @@ export class ApiUserRepository implements UserRepository {
    * Map API response to AuthResult domain model
    */
   private mapToAuthResult(data: any): AuthResult {
+    // Vérifier si data existe
+    if (!data) {
+      console.error('mapToAuthResult received undefined data')
+      // Retourner un AuthResult par défaut
+      return {
+        user: this.mapToUser(null),
+        token: '',
+      }
+    }
+
     return {
       user: this.mapToUser(data.user),
-      token: data.token,
-      refreshToken: data.refreshToken,
-      expiresAt: new Date(data.expiresAt),
+      token: data.token || '',
+      // refreshToken: data.refreshToken,
+      // expiresAt: new Date(data.expiresAt),
     }
   }
 
@@ -171,6 +182,17 @@ export class ApiUserRepository implements UserRepository {
    * Map API user data to User domain model
    */
   private mapToUser(data: any): User {
+    // Vérifier si data existe
+    if (!data) {
+      console.error('mapToUser received undefined data')
+      // Retourner un objet User par défaut
+      return {
+        id: 'unknown',
+        email: 'unknown',
+        roles: [],
+      }
+    }
+
     return {
       id: data.id,
       email: data.email,

@@ -36,7 +36,11 @@ export class LoginUserUseCaseImpl extends LoginUserUseCase {
 
     return {
       token,
-      roles: user.roles,
+      user: {
+        id: user.id.toString(),
+        email: user.email.toString(),
+        roles: user.roles,
+      },
     }
   }
 }

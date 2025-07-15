@@ -11,12 +11,8 @@ export default class RegisterController {
   async handle({ request, response }: HttpContext) {
     const { email, password } = await registerValidator.validate(request.body())
     try {
-      const user = await this.registerUserUseCase.execute(email, password)
-      return response.status(201).json({
-        id: user.id.toString(),
-        email: user.email.toString(),
-        roles: user.roles,
-      })
+      const result = await this.registerUserUseCase.execute(email, password)
+      return response.status(201).json(result)
     } catch (error: unknown) {
       if (error instanceof EmailAlreadyExistsException) {
         return response.badRequest({ error: error.message })

@@ -9,6 +9,22 @@ process.env.JWT_EXPIRES_IN = '1h'
 
 test.group('AuthFlow', (group) => {
   group.each.setup(() => testUtils.db().truncate())
+
+  test('register returns token and user data', async ({ client }) => {
+    const registerResponse = await client
+      .post('/api/auth/register')
+      .json({ email: 'newuser@example.com', password: 'secure123' })
+
+    registerResponse.assertStatus(201)
+    const body = registerResponse.body()
+
+    // Vérifier que la réponse contient un token et des données utilisateur
+    client.assert.exists(body.token)
+    client.assert.exists(body.user)
+    client.assert.equal(body.user.email, 'newuser@example.com')
+    client.assert.deepEqual(body.user.roles, [Role.GUEST])
+  })
+
   test('register then login and access protected route', async ({ client }) => {
     const loginResponse = await client
       .post('/api/auth/login')

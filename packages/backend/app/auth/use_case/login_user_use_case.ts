@@ -2,7 +2,11 @@ import { Role } from '#auth/domain/role'
 
 export interface AuthenticationResult {
   token: string
-  roles: Role[]
+  user: {
+    id: string
+    email: string
+    roles: Role[]
+  }
 }
 
 export abstract class LoginUserUseCase {
