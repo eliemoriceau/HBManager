@@ -1,215 +1,227 @@
-# Guidelines de développement - HBManager
+# CLAUDE.md
 
-Ce document définit les standards et pratiques à suivre pour le développement du projet HBManager, une application de gestion pour le handball.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Architecture
+## Project Overview
 
-Le projet suit les principes de **Domain-Driven Design (DDD)** et **Clean Architecture** avec la structure suivante :
+HBManager is a handball management application built as a monorepo with two main packages:
 
-### Structure des modules
+- **Frontend**: Vue.js 3 application
+- **Backend**: AdonisJS 6 API server
 
-Chaque module du projet doit suivre cette structure :
+The application follows Domain-Driven Design (DDD) principles with a hexagonal architecture (ports and adapters pattern) in both the frontend and backend.
 
-```
-/app/modules/{module}
-  /domain/              # Couche domaine (cœur métier)
-    /entity/            # Entités et objets valeur
-    /repository/        # Interfaces des repositories
-    /service/           # Services métier
-  /application/         # Couche application
-    /dto/               # Objets de transfert de données
-    /exception/         # Exceptions spécifiques
-    /usecase/           # Cas d'utilisation
-  /infrastructure/      # Couche infrastructure
-    /http/              # Contrôleurs et validateurs HTTP
-    /models/            # Modèles ORM (Lucid)
-    /repository/        # Implémentations des repositories
+## Common Commands
+
+### Root Level Commands
+
+```bash
+# Install dependencies
+yarn install
+
+# Run both frontend and backend in development mode
+yarn dev
 ```
 
-## Standards de code
+### Frontend Commands
 
-### Principes généraux
+```bash
+# Start development server
+yarn workspace frontend dev
 
-1. **Nomenclature** : Utiliser le camelCase pour les variables et méthodes, PascalCase pour les classes.
-2. **Immutabilité** : Privilégier les structures de données immuables quand c'est possible.
-3. **Type safety** : Toujours définir des types explicites, éviter `any`.
-4. **Commentaires** : Documenter les méthodes publiques avec des commentaires JSDoc.
+# Build for production
+yarn workspace frontend build
 
-### Entities et Value Objects
+# Run unit tests
+yarn workspace frontend test:unit
 
-- Les **entités** doivent être identifiées par un ID unique et avoir une méthode de comparaison d'égalité basée sur cet ID.
-- Les **objets valeur** doivent être immutables et avoir une méthode de comparaison d'égalité basée sur tous leurs attributs.
-- Toujours valider les entrées dans les constructeurs.
+# Run end-to-end tests
+yarn workspace frontend test:e2e
 
-```typescript
-// Exemple d'objet valeur
-export class Nom extends ValueObject<{ value: string }> {
-  private constructor(props: { value: string }) {
-    super(props);
-  }
+# Lint and fix files
+yarn workspace frontend lint
 
-  public static create(nom: string): Nom {
-    if (!nom || nom.trim().length === 0) {
-      throw new Error('Le nom ne peut pas être vide');
-    }
-    return new Nom({ value: nom.trim() });
-  }
+# Format code
+yarn workspace frontend format
 
-  toString() {
-    return this.props.value;
-  }
-}
+# Type-check
+yarn workspace frontend type-check
 ```
 
-### Gestion des erreurs
+### Backend Commands
 
-- Créer des classes d'exception spécifiques au domaine pour faciliter la gestion des erreurs.
-- Les exceptions doivent être claires et fournir suffisamment d'informations pour le débogage.
-- Utiliser les mécanismes async/await avec try/catch pour la gestion des erreurs asynchrones.
+```bash
+# Start development server
+yarn workspace backend dev
 
-```typescript
-export default class InvalidMatchException extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = 'InvalidMatchException';
-  }
-}
+# Build for production
+yarn workspace backend build
+
+# Run all tests
+yarn workspace backend test
+
+# Run specific test files
+yarn workspace backend test tests/unit/auth/domain/email.spec.ts
+
+# Run tests with coverage
+yarn workspace backend coverage
+
+# Lint files
+yarn workspace backend lint
+
+# Format code
+yarn workspace backend format
+
+# Type-check
+yarn workspace backend typecheck
+
+# Create a migration
+node ace make:migration migration_name
+
+# Run migrations
+node ace migration:run
+
+# Rollback migrations
+node ace migration:rollback
+
+# Reset database
+node ace migration:fresh
 ```
 
-### Repositories
+## Architecture Overview
 
-- Les repositories doivent déclarer des interfaces abstraites dans la couche domaine.
-- Les implémentations doivent être dans la couche infrastructure.
-- Utiliser le motif "adapter" pour convertir entre les modèles Lucid et les entités du domaine.
+### Backend Architecture
 
-```typescript
-// Interface dans le domaine
-export abstract class MatchRepository {
-  abstract findAll(): Promise<Match[]>;
-  abstract findById(id: string): Promise<Match | null>;
-  abstract upsert(match: Match): Promise<void>;
-  // ...
-}
+The backend follows a clean hexagonal architecture with DDD principles:
 
-// Implémentation dans l'infrastructure
-export class LucidMatchRepository extends MatchRepository {
-  // ...
-}
-```
+1. **Domain Layer**:
+   - Entities: Core business objects with identity (`Match`, `Team`, `User`)
+   - Value Objects: Immutable objects without identity (`Email`, `TeamName`)
+   - Domain Exceptions: Business rule validations
+   - Repository Interfaces: Define persistence contracts
 
-### Injection de dépendances
+2. **Application Layer**:
+   - Use Cases: Orchestrate domain operations
+   - Services: Coordinate complex domain operations
+   - DTOs: Data transfer objects for external communication
 
-- Utiliser l'injection de dépendances d'AdonisJS pour tous les cas d'utilisation et contrôleurs.
-- Injecter les dépendances via le constructeur.
-- Configurer les bindings dans un fichier d'index par module.
+3. **Infrastructure Layer**:
+   - Primary Adapters: HTTP controllers, validators
+   - Secondary Adapters: Database repositories, external services
+   - Models: ORM models (Lucid)
 
-```typescript
-@inject()
-export class GetMatch implements GetMatchUseCase {
-  constructor(private readonly matchRepository: MatchRepository) {}
-  
-  async execute(id: string): Promise<MatchDetailsDto> {
-    // ...
-  }
-}
-```
+4. **Module Structure**:
+   Each module follows the same structure:
+   ```
+   module/
+     ├── domain/            # Domain models, interfaces, rules
+     ├── application/       # Use cases, services
+     ├── primary/           # Input adapters (controllers)
+     ├── secondary/         # Output adapters (repositories)
+     ├── infrastructure/    # Technical implementations
+     └── service/           # Module-specific services
+   ```
 
-## Tests
+### Frontend Architecture
 
-### Stratégie de test
+The frontend also follows a clean architecture approach:
 
-1. **Tests unitaires** : Tester les entités, value objects et services du domaine en isolation.
-2. **Tests d'intégration** : Tester les repositories avec une base de données de test.
-3. **Tests fonctionnels** : Tester les API HTTP de bout en bout.
+1. **Domain Layer**:
+   - Models: Business objects (`User`, `Match`)
+   - Repository Interfaces: Define data access contracts
 
-### Bonnes pratiques
+2. **Application Layer**:
+   - Services: Business logic independent of UI
 
-- Utiliser des stubs et des mocks pour isoler les composants testés.
-- Créer des factories ou helpers pour faciliter la création d'objets de test.
-- Nettoyer la base de données avant/après chaque test avec `truncate()`.
-- Tester les cas limites et les scénarios d'erreur.
+3. **Infrastructure Layer**:
+   - API Repositories: Implementations of repository interfaces
+   - Auth Service: Handles authentication
 
-```typescript
-// Exemple de test
-test('returns match with teams', async ({ assert }) => {
-  const teamHome = createTeam(equipeHome, 'Home', 'C1');
-  const teamAway = createTeam(equipeAway, 'Away', 'C2');
-  const match = createMatch(teamHome, teamAway);
-  const matchRepo = new StubMatchRepository([match]);
-  const teamRepo = new StubTeamRepository([teamHome, teamAway]);
-  const useCase = new GetMatch(matchRepo, teamRepo);
+4. **Presentation Layer**:
+   - Vue Components: UI elements
+   - Views: Page components
+   - Pinia Stores: State management
+   - Routing: Navigation and guards
 
-  const res = await useCase.execute(match.id.toString());
+5. **Module Structure**:
+   ```
+   module/
+     ├── domain/            # Models and interfaces
+     ├── application/       # Services
+     ├── infrastructure/    # Repository implementations
+     ├── presentation/      # UI components and views
+     └── store/             # Pinia stores
+   ```
 
-  assert.equal(res.match.id.toString(), match.id.toString());
-  assert.equal(res.match.equipeDomicile.id, equipeHome);
-  assert.equal(res.match.equipeExterieur.id, equipeAway);
-});
-```
+## Key Development Patterns
 
-## Gestion des données
+1. **Repository Pattern**: All data access is through repositories
+2. **Use Case Pattern**: Business operations are encapsulated in use cases
+3. **Dependency Injection**: Services and repositories are injected
+4. **Value Objects**: Encapsulate validation logic for simple values
+5. **Rich Domain Model**: Business rules are in domain entities
+6. **Command Query Responsibility Segregation (CQRS)**: Separate read and write operations
 
-### Base de données
+## Coding Standards
 
-- Utiliser des migrations pour toutes les modifications de schéma.
-- Définir clairement les contraintes (NOT NULL, UNIQUE, etc.) dans les migrations.
-- Nommer les colonnes de façon cohérente (utiliser des suffixes `_id` pour les clés étrangères).
+1. **Naming Conventions**:
+   - Use camelCase for variables and methods
+   - Use PascalCase for classes and interfaces
+   - Use snake_case for database columns
 
-### Robustesse
+2. **Error Handling**:
+   - Create domain-specific exception classes
+   - Use try/catch with async/await
+   - Provide clear error messages
 
-- Gérer les cas d'absence de données (null, undefined) avec des valeurs par défaut.
-- Utiliser des vérifications défensives dans le code manipulant des données externes.
-- Implémenter des mécanismes de récupération en cas d'erreur.
+3. **Entities and Value Objects**:
+   - Entities must have unique IDs and equality based on identity
+   - Value objects must be immutable with equality based on all attributes
+   - Validate inputs in constructors
 
-```typescript
-// Exemple de code robuste avec valeurs par défaut
-const equipeDomicile = model.equipeDomicile 
-  ? Team.create({
-      id: model.equipeDomicile.id.toString(),
-      nom: model.equipeDomicile.nom,
-      codeFederal: model.equipeDomicile.codeFederal?.toString(),
-    })
-  : createDefaultTeam(model.equipeDomicileId || '');
-```
+4. **Repositories**:
+   - Abstract interfaces in domain layer
+   - Concrete implementations in infrastructure layer
+   - Use adapter pattern for ORM-to-domain mapping
 
-## Performance
+## Testing Strategy
 
-- Optimiser les requêtes N+1 avec le preloading dans Lucid.
-- Traiter les données en lots quand c'est possible (bulk inserts, etc.).
-- Utiliser le service `PerformanceMeasurementService` pour identifier les goulots d'étranglement.
+1. **Backend Tests**:
+   - Unit tests: Test domain logic in isolation
+   - Functional tests: Test HTTP endpoints
+   - Integration tests: Test repository implementations
 
-```typescript
-// Exemple d'optimisation des requêtes N+1
-const models = await MatchModel.query()
-  .preload('equipeDomicile')
-  .preload('equipeExterieur');
-```
+2. **Frontend Tests**:
+   - Unit tests: Test components and services
+   - E2E tests: Test user flows with Playwright
 
-## Sécurité
+3. **Test Best Practices**:
+   - Use stubs and mocks to isolate components
+   - Create factories or helpers for test objects
+   - Clean database before/after tests
+   - Test edge cases and error scenarios
 
-- Valider toutes les entrées utilisateur avec des validateurs.
-- Éviter les vulnérabilités d'injection SQL en utilisant les requêtes paramétrées de Lucid.
-- Mettre en œuvre des protections CSRF pour les formulaires.
-- Suivre les principes OWASP Top 10.
+## Performance Considerations
 
-## Commandes utiles
+- Optimize N+1 queries with Lucid preloading
+- Process data in batches when possible
+- Use `PerformanceMeasurementService` to identify bottlenecks
 
-- **Exécuter les tests** : `yarn test`
-- **Vérifier la couverture de tests** : `yarn coverage`
-- **Démarrer le serveur** : `node ace serve --watch`
-- **Créer une migration** : `node ace make:migration nom_migration`
-- **Exécuter les migrations** : `node ace migration:run`
-- **Rollback des migrations** : `node ace migration:rollback`
-- **Réinitialiser la base de données** : `node ace migration:fresh`
+## Security Guidelines
 
-## Bonnes pratiques supplémentaires
+- Validate all user inputs with validators
+- Avoid SQL injection by using Lucid parameterized queries
+- Implement CSRF protections for forms
+- Follow OWASP Top 10 principles
 
-1. **Commits Git** : Écrire des messages de commit clairs et descriptifs.
-2. **Documentation** : Documenter les APIs et les composants importants.
-3. **Revue de code** : Faire des revues de code pour maintenir la qualité.
-4. **Refactoring régulier** : Refactoriser le code pour maintenir sa qualité et sa lisibilité.
-5. **Logging** : Implémenter un logging approprié pour faciliter le débogage en production.
+## Important Notes
 
----
-
-Ce document est vivant et sera mis à jour au fur et à mesure que le projet évolue.
+1. Always run tests before submitting changes
+2. Maintain the hexagonal architecture and DDD principles
+3. Keep the frontend and backend models in sync
+4. Use value objects for validation and encapsulation
+5. Controllers should be thin and delegate to use cases
+6. Use TypeScript for all new code
+7. Document public methods with JSDoc comments
+8. Implement robust error handling
+9. Use dependency injection for all use cases and controllers
